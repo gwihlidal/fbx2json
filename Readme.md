@@ -4,9 +4,9 @@ Extract mesh data
 * ~~Load scene~~
 * ~~Find root node~~
 * ~~Iterate child nodes~~
-* ~~Get unique vertices~~
+* ~~Get vertices~~
 * Get normal per unique vertex
-* Get UVs per non-unique vertex
+* ~~Get UVs per vertex~~
 * ~~Output vertices, indices, normals and uvs as JSON~~
 
 Reference Documentation

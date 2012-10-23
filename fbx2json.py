@@ -15,7 +15,7 @@ def parse_node_content(node, sdk_manager):
 
     if attribute_type == FbxNodeAttribute.eMesh:
         data = extract_mesh_data(node, sdk_manager)
-        print json.dumps(data, indent=1)
+        # print json.dumps(data, indent=1)
 
     for i in range(node.GetChildCount()):
         parse_node_content(node.GetChild(i), sdk_manager)
@@ -48,29 +48,40 @@ def convert_mesh_to_triangles(mesh, sdk_manager):
 
 
 def get_vertices(mesh):
-    control_points_count = mesh.GetControlPointsCount()
+    # control_points_count = mesh.GetControlPointsCount()
     control_points = mesh.GetControlPoints()
 
-    points_flat = []
-
-    for i in range(len(control_points)):
-        points_flat.append(control_points[i][0])
-        points_flat.append(control_points[i][1])
-        points_flat.append(control_points[i][2])
-
-    return points_flat
-
-
-def get_indices(mesh):
     polygon_count = mesh.GetPolygonCount()
-    indices = []
+    vertices = []
 
     for i in range(polygon_count):
         polygon_size = mesh.GetPolygonSize(i)
 
         for j in range(polygon_size):
             control_point_index = mesh.GetPolygonVertex(i, j)
-            indices.append(control_point_index)
+            vertices.append(control_points[control_point_index])
+
+    vertices_flat = []
+    
+    for i in range(len(vertices)):
+        vertices_flat.append(vertices[i][0])
+        vertices_flat.append(vertices[i][1])
+        vertices_flat.append(vertices[i][2])
+
+    return vertices_flat
+
+
+def get_indices(mesh):
+    polygon_count = mesh.GetPolygonCount()
+    indices = []
+    indices = range(1896)
+
+    # for i in range(polygon_count):
+    #     polygon_size = mesh.GetPolygonSize(i)
+    # 
+    #     for j in range(polygon_size):
+    #         control_point_index = mesh.GetPolygonVertex(i, j)
+    #         indices.append(control_point_index)
 
     return indices
 
@@ -96,26 +107,27 @@ def get_indices(mesh):
 #     return normals_flat
 
 
-# TODO: This seems broken. http://docs.autodesk.com/FBX/2013/ENU/FBX-SDK-Documentation/cpp_ref/_u_v_sample_2main_8cxx-example.html
 def get_uvs(mesh):
     polygon_count = mesh.GetPolygonCount()
     uvs = []
     
+    # print mesh.GetTextureUVCount()
+
     for i in range(polygon_count):
 
         polygon_size = mesh.GetPolygonSize(i)
 
         for j in range(polygon_size):
             control_point_index = mesh.GetPolygonVertex(i, j)
-            layer_count = mesh.GetLayerCount()
+            layer_count = min(mesh.GetLayerCount(), 1)
 
-            layer_count = min(layer_count, 1)
-            
             for l in range(layer_count):
                 layer_uvs = mesh.GetLayer(l).GetUVs()
                 if layer_uvs:
                     if layer_uvs.GetMappingMode() ==  FbxLayerElement.eByPolygonVertex:
                         layer_texture_uv_index = mesh.GetTextureUVIndex(i, j)
+                        # print layer_texture_uv_index
+
                         if layer_uvs.GetReferenceMode() == FbxLayerElement.eDirect or \
                            layer_uvs.GetReferenceMode() == FbxLayerElement.eIndexToDirect:
                             uvs.append(layer_uvs.GetDirectArray().GetAt(layer_texture_uv_index))
@@ -124,7 +136,7 @@ def get_uvs(mesh):
     for i in range(len(uvs)):
         uvs_flat.append(uvs[i][0])
         uvs_flat.append(uvs[i][1])
-        
+
     return uvs_flat
 
 
