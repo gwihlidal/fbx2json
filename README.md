@@ -23,7 +23,7 @@ python fbx2json.py in.fbx out.json
 
 ### 1.0
 
-* Parse command line parameters for in/out files
+* ~~Parse command line parameters for in/out files~~
 * Extract and return normals
 * Support multiple nodes in the [FBX scene graph](http://docs.autodesk.com/FBX/2013/ENU/FBX-SDK-Documentation/files/GUID-F194000D-5AD4-49C1-86CC-5DAC2CE64E97.htm)
 * Check for FBX version compatibility before processing
