@@ -1,4 +1,4 @@
-# fbx2json
+# fbx2json 
 
 A simple command-line utility to convert [Autodesk FBX](http://www.autodesk.com/developfbx) files to a custom JSON format, suitable for use in OpenGL/WebGL projects.
 
