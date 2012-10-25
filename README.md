@@ -29,6 +29,7 @@ python fbx2json.py input.fbx output.js
 * ~~Extract and return normals~~
 * Support multiple nodes in the [FBX scene graph](http://docs.autodesk.com/FBX/2013/ENU/FBX-SDK-Documentation/files/GUID-F194000D-5AD4-49C1-86CC-5DAC2CE64E97.htm)
 * Support multiple layers and layer element reference modes
+* Capture material attributes (e.g. diffuse, ambient, etc)
 * Document JSON format (potential to support the [Three.js JSON format](https://github.com/mrdoob/three.js/wiki/JSON-Model-format-3.1))
 * Check for FBX version compatibility before processing
 * ~~Error handling, help, instructions, etc~~
