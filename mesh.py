@@ -83,7 +83,7 @@ def parse_mesh(node):
     mesh = node.GetNodeAttribute()
     mesh = triangulate_mesh(mesh)
 
-    output = {
+    mesh_data = {
         'vertices': [],
         'faces': [],
         'normals': [],
@@ -98,17 +98,17 @@ def parse_mesh(node):
 
         for j in range(polygon_size):
             vertex = get_vertex(mesh, control_points, i, j)
-            output['vertices'].append(vertex)
+            mesh_data['vertices'].append(vertex)
 
             normal = get_normal(mesh, i, j)
-            output['normals'].append(normal)
+            mesh_data['normals'].append(normal)
 
             uv = get_uv(mesh, i, j)
-            output['uvs'].append(uv)
+            mesh_data['uvs'].append(uv)
 
-    output['faces'] = range(len(output['vertices']))
+    mesh_data['faces'] = range(len(mesh_data['vertices']))
 
-    return output
+    return mesh_data
 
 
 def triangulate_mesh(mesh):
