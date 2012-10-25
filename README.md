@@ -36,6 +36,7 @@ python fbx2json.py input.fbx output.js
 ### Future
 
 * Investigate the [FBX animation format](http://docs.autodesk.com/FBX/2013/ENU/FBX-SDK-Documentation/index.html?url=files/GUID-B3311B8D-5390-4C63-AB9F-662AC7D5C6CC.htm,topicNumber=d30e9650)
+* Support multiple scene graph object types (e.g. Camera, Lights, etc)
 * Determine when repeating vertices is necessary (e.g. UVs/normals that share a vertex)
 
 ## FBX References
