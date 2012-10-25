@@ -38,7 +38,7 @@ python fbx2json.py input.fbx output.js
 
 * Investigate the [FBX animation format](http://docs.autodesk.com/FBX/2013/ENU/FBX-SDK-Documentation/index.html?url=files/GUID-B3311B8D-5390-4C63-AB9F-662AC7D5C6CC.htm,topicNumber=d30e9650)
 * Support multiple scene graph object types (e.g. Camera, Lights, etc)
-* Potentially support the [Three.js JSON format](https://github.com/mrdoob/three.js/wiki/JSON-Model-format-3.1)
+* Potentially support the [Three.js JSON format](https://github.com/mrdoob/three.js/wiki/JSON-Model-format-3.1) / multiple export formats
 * Determine when repeating vertices is necessary (e.g. UVs/normals that share a vertex)
 * Check for FBX version compatibility before processing
 
