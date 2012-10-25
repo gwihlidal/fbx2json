@@ -16,7 +16,7 @@ A simple command-line utility to convert [Autodesk FBX](http://www.autodesk.com/
 ## Usage
 
 ```
-python fbx2json.py in.fbx out.json
+python fbx2json.py input.fbx output.js
 ```
 
 ## Roadmap
