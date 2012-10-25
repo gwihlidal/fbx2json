@@ -27,17 +27,19 @@ python fbx2json.py input.fbx output.js
 * ~~Parse command line parameters for in/out files~~
 * ~~[PEP 8](http://www.python.org/dev/peps/pep-0008/) compliance~~
 * ~~Extract and return normals~~
-* Support multiple nodes in the [FBX scene graph](http://docs.autodesk.com/FBX/2013/ENU/FBX-SDK-Documentation/files/GUID-F194000D-5AD4-49C1-86CC-5DAC2CE64E97.htm)
-* Support multiple layers and layer element reference modes
-* Capture material attributes (e.g. diffuse, ambient, etc)
-* Document JSON format (potential to support the [Three.js JSON format](https://github.com/mrdoob/three.js/wiki/JSON-Model-format-3.1))
 * Check for FBX version compatibility before processing
+* Support multiple nodes in the [FBX scene graph](http://docs.autodesk.com/FBX/2013/ENU/FBX-SDK-Documentation/files/GUID-F194000D-5AD4-49C1-86CC-5DAC2CE64E97.htm)
+* Capture material attributes (e.g. diffuse, ambient, etc)
+* Support multiple layer element reference modes
+* Support multiple layers
+* Document JSON output format
 * ~~Error handling, help, instructions, etc~~
 
 ### Future
 
 * Investigate the [FBX animation format](http://docs.autodesk.com/FBX/2013/ENU/FBX-SDK-Documentation/index.html?url=files/GUID-B3311B8D-5390-4C63-AB9F-662AC7D5C6CC.htm,topicNumber=d30e9650)
 * Support multiple scene graph object types (e.g. Camera, Lights, etc)
+* Potentially support the [Three.js JSON format](https://github.com/mrdoob/three.js/wiki/JSON-Model-format-3.1)
 * Determine when repeating vertices is necessary (e.g. UVs/normals that share a vertex)
 
 ## FBX References
