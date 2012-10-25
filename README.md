@@ -6,7 +6,7 @@ A simple command-line utility to convert [Autodesk FBX](http://www.autodesk.com/
 
 ## Features
 
-* Exports mesh data (vertices, uvs and indices) for a single object in an FBX scene
+* Exports mesh data (vertices, normals, uvs and faces) for a single object in an FBX scene
 
 ## Requirements
 
