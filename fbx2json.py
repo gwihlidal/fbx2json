@@ -1,35 +1,55 @@
 #!/usr/bin/env python
 
+""""
+
+  Copyright (c) 2012 Cameron Yule
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+"""
+
 import sys
 import optparse
-import mesh
+from mesh import process
 
 version = '0.1'
 
+
 def main():
     """Runs program and handles command line options"""
-        
-    p = optparse.OptionParser(description='Convert Autodesk FBX files to a ' \
-    'custom JSON format.',
-    prog='fbx2json.py',
-    version='%prog ' + version,
-    usage='%prog input.fbx output.js')
+
+    p = optparse.OptionParser(description='Convert Autodesk FBX files to a '
+                              'custom JSON format.',
+                              prog='fbx2json.py',
+                              version='%prog ' + version,
+                              usage='%prog input.fbx output.js')
 
     options, arguments = p.parse_args()
-        
+
     if len(arguments) == 2:
-        # goafsdfds()
+        scene_file = sys.argv[1]
+        output_file = sys.argv[2]
+        process(scene_file, output_file)
         sys.exit(0)
     else:
         p.print_help()
-        
+
 if __name__ == "__main__":
-    try:
-        from FbxCommon import *
-    except ImportError:
-        print("Unable to load the Autodesk Python FBX SDK. Please consult " \
-        "the online documentation to ensure it is correctly installed: " \
-        "http://www.autodesk.com/fbx-sdkdoc-2013-enu") 
-        sys.exit(1)
-        
     main()
