@@ -27,9 +27,8 @@ python fbx2json.py input.fbx output.js
 * ~~Parse command line parameters for in/out files~~
 * ~~[PEP 8](http://www.python.org/dev/peps/pep-0008/) compliance~~
 * ~~Extract and return normals~~
-* Check for FBX version compatibility before processing
 * Support multiple nodes in the [FBX scene graph](http://docs.autodesk.com/FBX/2013/ENU/FBX-SDK-Documentation/files/GUID-F194000D-5AD4-49C1-86CC-5DAC2CE64E97.htm)
-* Capture material attributes (e.g. diffuse, ambient, etc)
+* Capture material attributes (e.g. diffuse, ambient, texture filename, etc)
 * Support multiple layer element reference modes
 * Support multiple layers
 * Document JSON output format
@@ -41,6 +40,7 @@ python fbx2json.py input.fbx output.js
 * Support multiple scene graph object types (e.g. Camera, Lights, etc)
 * Potentially support the [Three.js JSON format](https://github.com/mrdoob/three.js/wiki/JSON-Model-format-3.1)
 * Determine when repeating vertices is necessary (e.g. UVs/normals that share a vertex)
+* Check for FBX version compatibility before processing
 
 ## FBX References
 
