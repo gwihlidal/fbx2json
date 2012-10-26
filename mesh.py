@@ -23,8 +23,9 @@
 
 """
 
-import math
+import os
 import json
+import math  # TODO: Remove this import after adding multiple layer support
 
 try:
     from FbxCommon import *
@@ -46,12 +47,22 @@ def process(scene_file, output_file):
     mesh_data = walk_scene_graph(scene)
 
     if len(mesh_data) > 0:
-        f = open(output_file, 'w')
-        f.write(json.dumps(mesh_data[0], indent=2))
+        for i in range(len(mesh_data)):
+            write_file(mesh_data, output_file, i)
     else:
-        print "Error: No mesh nodes found in the scene graph. Aborting."
+        print "Error: No mesh nodes found in the scene graph."
 
     sdk_manager.Destroy()
+
+
+def output_file_name(requested_name, i):
+    file_name, file_extension = os.path.splitext(requested_name)
+    return "%s_%s%s" % (file_name, i, file_extension)
+
+
+def write_file(mesh_data, output_file, i):
+    f = open(output_file_name(output_file, i), 'w')
+    f.write(json.dumps(mesh_data[i], indent=2))
 
 
 def walk_scene_graph(scene):
@@ -73,7 +84,9 @@ def parse_scene_node(node, mesh_data):
     attribute_type = (node.GetNodeAttribute().GetAttributeType())
 
     if attribute_type == FbxNodeAttribute.eMesh:
-        mesh_data.append(parse_mesh(node))
+        data = parse_mesh(node)
+        data['name'] = node.GetName()
+        mesh_data.append(data)
 
     for i in range(node.GetChildCount()):
         parse_scene_node(node.GetChild(i), mesh_data)
@@ -121,12 +134,15 @@ def triangulate_mesh(mesh):
     return mesh
 
 
-def flatten(list):
+def flatten(expanded_list):
     try:
-        return [x for sublist in list
-                for x in sublist]
+        if isinstance(expanded_list, list):
+            return [x for sublist in expanded_list
+                    for x in sublist]
+        else:
+            return expanded_list
     except TypeError:
-        return list
+        return expanded_list
 
 
 def get_vertex(mesh, control_points, polygon_index, vertex_index):
