@@ -55,16 +55,6 @@ def process(scene_file, output_file):
     sdk_manager.Destroy()
 
 
-def output_file_name(requested_name, i):
-    file_name, file_extension = os.path.splitext(requested_name)
-    return "%s_%s%s" % (file_name, i, file_extension)
-
-
-def write_file(mesh_data, output_file, i):
-    f = open(output_file_name(output_file, i), 'w')
-    f.write(json.dumps(mesh_data[i], indent=2))
-
-
 def walk_scene_graph(scene):
     node = scene.GetRootNode()
     mesh_data = []
@@ -83,10 +73,27 @@ def walk_scene_graph(scene):
 def parse_scene_node(node, mesh_data):
     attribute_type = (node.GetNodeAttribute().GetAttributeType())
 
+    data = {}
+
+    # if attribute_type == FbxNodeAttribute.eMarker:
+    #     pass
+    # elif attribute_type == FbxNodeAttribute.eSkeleton:
+    #     pass
     if attribute_type == FbxNodeAttribute.eMesh:
         data = parse_mesh(node)
-        data['name'] = node.GetName()
         mesh_data.append(data)
+    # elif attribute_type == FbxNodeAttribute.eNull:
+    #     pass
+    # elif attribute_type == FbxNodeAttribute.eNurbs:
+    #     pass
+    # elif attribute_type == FbxNodeAttribute.ePatch:
+    #     pass
+    # elif attribute_type == FbxNodeAttribute.eCamera:
+    #     pass
+    # elif attribute_type == FbxNodeAttribute.eLight:
+    #     pass
+
+    data['name'] = node.GetName()
 
     for i in range(node.GetChildCount()):
         parse_scene_node(node.GetChild(i), mesh_data)
@@ -102,8 +109,27 @@ def parse_mesh(node):
         'vertices': [],
         'faces': [],
         'normals': [],
-        'uvs': []
+        'uvs': [],
+        'translation': [],
+        'rotation': [],
+        'scale': []
     }
+    print node.GetName()
+    translation = node.EvaluateLocalTransform().GetT()
+    rotation = node.EvaluateLocalTransform().GetR()
+    scale = node.EvaluateLocalTransform().GetS()
+    print 'translation %s' % translation
+    print 'rotation %s' % rotation
+    print 'scale %s' % scale
+
+    # translation = node.LclTranslation.Get()
+    # mesh_data['translation'].append(translation)
+    # 
+    # rotation = node.LclRotation.Get()
+    # mesh_data['rotation'].append(rotation)
+    # 
+    # scale = node.LclScaling.Get()
+    # mesh_data['scale'].append(scale)
 
     polygon_count = mesh.GetPolygonCount()
     control_points = mesh.GetControlPoints()
@@ -113,6 +139,13 @@ def parse_mesh(node):
 
         for j in range(polygon_size):
             vertex = get_vertex(mesh, control_points, i, j)
+            
+            print 'result %s' % (translation * rotation * scale * vertex)
+            
+            # vertex = apply_translation(vertex, translation)
+            # vertex = apply_rotation(vertex, rotation)
+            # vertex = apply_scale(vertex, scale)
+
             mesh_data['vertices'].append(vertex)
 
             normal = get_normal(mesh, i, j)
@@ -134,21 +167,30 @@ def triangulate_mesh(mesh):
     return mesh
 
 
-def flatten(expanded_list):
-    try:
-        if isinstance(expanded_list, list):
-            return [x for sublist in expanded_list
-                    for x in sublist]
-        else:
-            return expanded_list
-    except TypeError:
-        return expanded_list
-
-
 def get_vertex(mesh, control_points, polygon_index, vertex_index):
     i = mesh.GetPolygonVertex(polygon_index, vertex_index)
     p = control_points[i]
-    return [p[0], p[1], p[2]]
+    return p
+
+
+# def apply_translation(vertex, translation):
+#     vertex[0] += translation[0]
+#     vertex[1] += translation[1]
+#     vertex[2] += translation[2]
+# 
+#     return vertex
+# 
+# 
+# def apply_rotation(vertex, rotation):
+#     return vertex
+# 
+# 
+# def apply_scale(vertex, scale):
+#     vertex[0] *= scale[0]
+#     vertex[1] *= scale[1]
+#     vertex[2] *= scale[2]
+# 
+#     return vertex
 
 
 def get_normal(mesh, polygon_index, vertex_index):
@@ -171,3 +213,24 @@ def get_uv(mesh, polygon_index, vertex_index):
                         uvs.GetReferenceMode() ==
                         FbxLayerElement.eIndexToDirect):
                         return uvs.GetDirectArray().GetAt(j)
+
+
+def flatten(expanded_list):
+    try:
+        if isinstance(expanded_list, list):
+            return [x for sublist in expanded_list
+                    for x in sublist]
+        else:
+            return expanded_list
+    except TypeError:
+        return expanded_list
+
+
+def output_file_name(requested_name, i):
+    file_name, file_extension = os.path.splitext(requested_name)
+    return "%s_%s%s" % (file_name, i, file_extension)
+
+
+def write_file(mesh_data, output_file, i):
+    f = open(output_file_name(output_file, i), 'w')
+    f.write(json.dumps(mesh_data[i], indent=2))
