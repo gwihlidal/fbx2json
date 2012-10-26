@@ -45,26 +45,28 @@ def process(scene_file, output_file):
 
     mesh_data = walk_scene_graph(scene)
 
-    f = open(output_file, 'w')
-    f.write(json.dumps(mesh_data, indent=2))
+    if len(mesh_data) > 0:
+        f = open(output_file, 'w')
+        f.write(json.dumps(mesh_data[0], indent=2))
+    else:
+        print "Error: No mesh nodes found in the scene graph. Aborting."
 
     sdk_manager.Destroy()
 
 
 def walk_scene_graph(scene):
     node = scene.GetRootNode()
+    mesh_data = []
 
     if node:
         for i in range(node.GetChildCount()):
-            mesh_data = []
             mesh_data = parse_scene_node(node.GetChild(i), mesh_data)
 
     for i in range(len(mesh_data)):
         for j in mesh_data[i].keys():
             mesh_data[i][j] = flatten(mesh_data[i][j])
 
-    # TODO: Support multiple objects in the scene graph
-    return mesh_data[0]
+    return mesh_data
 
 
 def parse_scene_node(node, mesh_data):
