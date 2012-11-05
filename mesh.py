@@ -50,11 +50,10 @@ def process(scene_file, output_file):
     root_node = scene.GetRootNode()
     root_node = triangulate_mesh(root_node)
 
-    data = walk_scene_graph(root_node)
+    output_data = walk_scene_graph(root_node)
 
-    if len(data) > 0:
-        for i in range(len(data)):
-            write_file(data, output_file, i)
+    if len(output_data) > 0:
+        write_file(output_data, output_file)
     else:
         print "Error: No mesh nodes found in the scene graph."
 
@@ -101,7 +100,7 @@ def parse_node(node, scene_graph):
     elif node_attribute_type == FbxNodeAttribute.eSkeleton:
         pass
     elif node_attribute_type == FbxNodeAttribute.eMesh:
-        scene_graph.append(parse_mesh(node_attribute))
+        scene_graph.append(parse_mesh(node, node_attribute))
     elif node_attribute_type == FbxNodeAttribute.eNull:
         pass
     elif node_attribute_type == FbxNodeAttribute.eNurbs:
@@ -131,9 +130,11 @@ def print_node_attribute_type(node_attribute_type):
     print node_attribute_types[node_attribute_type]
 
 
-def parse_mesh(mesh):
+def parse_mesh(node, mesh):
     polygon_count = mesh.GetPolygonCount()
     control_points = mesh.GetControlPoints()
+
+    control_points = bake_global_positions(node, control_points)
 
     if mesh_only_uses_control_points(mesh):
         vertices, indices, normals, uvs = parse_mesh_by_control_point(mesh, polygon_count, control_points)
@@ -146,6 +147,60 @@ def parse_mesh(mesh):
     print 'UVs: %s' % len(uvs)
 
     return {'vertices': vertices, 'indices': indices, 'normals': normals, 'uvs': uvs}
+
+
+def bake_global_positions(node, control_points):
+    time = FbxTime()
+    pose = None
+    global_position = get_global_position(node, time, pose)
+
+    geometry_offset = get_geometry(node)
+    global_offset_position = global_position * geometry_offset
+
+    for i in range(len(control_points)):
+        control_points[i] = global_offset_position.MultT(control_points[i])
+
+    return control_points
+
+
+def get_global_position(node, time, pose):
+    global_position = FbxAMatrix()
+    position_found = False
+
+    # if (pose):
+    #     node_index = pose.Find(node)
+    # 
+    #     if (node_index > -1):
+    #         if (pose.IsBindPose() or not pose.IsLocalMatrix(node_index)):
+    #             lGlobalPosition = GetPoseMatrix(pPose, lNodeIndex);
+    #         else:
+    #             parent_global_position = FbxAMatrix()
+    # 
+    #             if node.GetParent():
+    #                 parent_global_position = get_global_position(node.GetParent(), time, pose)
+    # 
+    #             local_position = get_pose_matrix(pose, node_index)
+    #             global_position = global_position * local_position
+    # 
+    #         position_found = True
+
+    if not position_found:
+        global_position = node.EvaluateGlobalTransform(time)
+
+    return global_position
+
+
+def get_geometry(node):
+    translation = node.GetGeometricTranslation(FbxNode.eSourcePivot)
+    rotation = node.GetGeometricRotation(FbxNode.eSourcePivot)
+    scaling = node.GetGeometricScaling(FbxNode.eSourcePivot)
+
+    matrix = FbxAMatrix()
+    matrix.SetTRS(translation, rotation, scaling)
+
+    return matrix
+
+
 
 
 def mesh_only_uses_control_points(mesh):
@@ -260,11 +315,6 @@ def parse_mesh_by_other_mapping_mode(mesh, polygon_count, control_points):
     return (vertices, indices, normals, uvs)
 
 
-def output_file_name(requested_name, i):
-    file_name, file_extension = os.path.splitext(requested_name)
-    return "%s_%s%s" % (file_name, i, file_extension)
-
-
-def write_file(mesh_data, output_file, i):
-    f = open(output_file_name(output_file, i), 'w')
-    f.write(json.dumps(mesh_data[i], indent=2))
+def write_file(mesh_data, output_file):
+    f = open(output_file, 'w')
+    f.write(json.dumps(mesh_data, indent=2))
