@@ -25,7 +25,7 @@
 
 import os
 import json
-import math  # TODO: Remove this import after adding multiple layer support
+import pdb
 
 try:
     from FbxCommon import *
@@ -34,6 +34,9 @@ except ImportError:
           "the online documentation to ensure it is correctly installed: "
           "http://www.autodesk.com/fbx-sdkdoc-2013-enu")
     sys.exit(1)
+
+TRIANGLE_VERTEX_COUNT = 3
+VERTEX_STRIDE = 3
 
 sdk_manager = None
 
@@ -44,186 +47,217 @@ def process(scene_file, output_file):
     sdk_manager, scene = InitializeSdkObjects()
     LoadScene(sdk_manager, scene, scene_file)
 
-    mesh_data = walk_scene_graph(scene)
+    root_node = scene.GetRootNode()
+    root_node = triangulate_mesh(root_node)
 
-    if len(mesh_data) > 0:
-        for i in range(len(mesh_data)):
-            write_file(mesh_data, output_file, i)
+    data = walk_scene_graph(root_node)
+
+    if len(data) > 0:
+        for i in range(len(data)):
+            write_file(data, output_file, i)
     else:
         print "Error: No mesh nodes found in the scene graph."
 
     sdk_manager.Destroy()
 
 
-def walk_scene_graph(scene):
-    node = scene.GetRootNode()
-    mesh_data = []
+def triangulate_mesh(node):
+    node_attribute = node.GetNodeAttribute()
 
-    if node:
-        for i in range(node.GetChildCount()):
-            mesh_data = parse_scene_node(node.GetChild(i), mesh_data)
+    if node_attribute:
+        node_attribute_type = node_attribute.GetAttributeType()
 
-    for i in range(len(mesh_data)):
-        for j in mesh_data[i].keys():
-            mesh_data[i][j] = flatten(mesh_data[i][j])
-
-    return mesh_data
-
-
-def parse_scene_node(node, mesh_data):
-    attribute_type = (node.GetNodeAttribute().GetAttributeType())
-
-    data = {}
-
-    # if attribute_type == FbxNodeAttribute.eMarker:
-    #     pass
-    # elif attribute_type == FbxNodeAttribute.eSkeleton:
-    #     pass
-    if attribute_type == FbxNodeAttribute.eMesh:
-        data = parse_mesh(node)
-        mesh_data.append(data)
-    # elif attribute_type == FbxNodeAttribute.eNull:
-    #     pass
-    # elif attribute_type == FbxNodeAttribute.eNurbs:
-    #     pass
-    # elif attribute_type == FbxNodeAttribute.ePatch:
-    #     pass
-    # elif attribute_type == FbxNodeAttribute.eCamera:
-    #     pass
-    # elif attribute_type == FbxNodeAttribute.eLight:
-    #     pass
-
-    data['name'] = node.GetName()
+        if (node_attribute_type == FbxNodeAttribute.eMesh or
+            node_attribute_type == FbxNodeAttribute.eNurbs or
+            node_attribute_type == FbxNodeAttribute.eNurbsSurface or
+            node_attribute_type == FbxNodeAttribute.ePatch):
+                geometry_converter = FbxGeometryConverter(sdk_manager)
+                geometry_converter.TriangulateInPlace(node)
 
     for i in range(node.GetChildCount()):
-        parse_scene_node(node.GetChild(i), mesh_data)
+        triangulate_mesh(node.GetChild(i))
 
-    return mesh_data
+    return node
 
 
-def parse_mesh(node):
-    mesh = node.GetNodeAttribute()
-    mesh = triangulate_mesh(mesh)
+def walk_scene_graph(root_node):
+    scene_graph = []
 
-    mesh_data = {
-        'vertices': [],
-        'faces': [],
-        'normals': [],
-        'uvs': [],
-        'translation': [],
-        'rotation': [],
-        'scale': []
-    }
-    print node.GetName()
-    translation = node.EvaluateLocalTransform().GetT()
-    rotation = node.EvaluateLocalTransform().GetR()
-    scale = node.EvaluateLocalTransform().GetS()
-    print 'translation %s' % translation
-    print 'rotation %s' % rotation
-    print 'scale %s' % scale
+    if root_node:
+        for i in range(root_node.GetChildCount()):
+            scene_graph = parse_node(root_node.GetChild(i), scene_graph)
 
-    # translation = node.LclTranslation.Get()
-    # mesh_data['translation'].append(translation)
-    # 
-    # rotation = node.LclRotation.Get()
-    # mesh_data['rotation'].append(rotation)
-    # 
-    # scale = node.LclScaling.Get()
-    # mesh_data['scale'].append(scale)
+    return scene_graph
 
+
+def parse_node(node, scene_graph):
+    node_attribute = node.GetNodeAttribute()
+    node_attribute_type = node_attribute.GetAttributeType()
+
+    # print_node_attribute_type(node_attribute_type)
+
+    if node_attribute_type == FbxNodeAttribute.eMarker:
+        pass
+    elif node_attribute_type == FbxNodeAttribute.eSkeleton:
+        pass
+    elif node_attribute_type == FbxNodeAttribute.eMesh:
+        scene_graph.append(parse_mesh(node_attribute))
+    elif node_attribute_type == FbxNodeAttribute.eNull:
+        pass
+    elif node_attribute_type == FbxNodeAttribute.eNurbs:
+        pass
+    elif node_attribute_type == FbxNodeAttribute.ePatch:
+        pass
+    elif node_attribute_type == FbxNodeAttribute.eCamera:
+        pass
+    elif node_attribute_type == FbxNodeAttribute.eLight:
+        pass
+
+    for i in range(node.GetChildCount()):
+        parse_node(node.GetChild(i), scene_graph)
+
+    return scene_graph
+
+
+def print_node_attribute_type(node_attribute_type):
+    '''Helper method for viewing/debugging scene graph structure.'''
+    node_attribute_types = ('eUnknown', 'eNull', 'eMarker', 'eSkeleton', 
+                            'eMesh', 'eNurbs', 'ePatch', 'eCamera', 
+                            'eCameraStereo', 'eCameraSwitcher', 'eLight', 
+                            'eOpticalReference', 'eOpticalMarker', 
+                            'eNurbsCurve', 'eTrimNurbsSurface', 'eBoundary',
+                            'eNurbsSurface', 'eShape', 'eLODGroup', 'eSubDiv', 
+                            'eCachedEffect', 'eLine')
+    print node_attribute_types[node_attribute_type]
+
+
+def parse_mesh(mesh):
     polygon_count = mesh.GetPolygonCount()
     control_points = mesh.GetControlPoints()
 
-    for i in range(polygon_count):
-        polygon_size = mesh.GetPolygonSize(i)
+    if mesh_only_uses_control_points(mesh):
+        vertices, indices, normals, uvs = parse_mesh_by_control_point(mesh, polygon_count, control_points)
+    else:
+        vertices, indices, normals, uvs = parse_mesh_by_other_mapping_mode(mesh, polygon_count, control_points)
 
-        for j in range(polygon_size):
-            vertex = get_vertex(mesh, control_points, i, j)
-            
-            print 'result %s' % (translation * rotation * scale * vertex)
-            
-            # vertex = apply_translation(vertex, translation)
-            # vertex = apply_rotation(vertex, rotation)
-            # vertex = apply_scale(vertex, scale)
+    print 'Vertices: %s' % len(vertices)
+    print 'Indices: %s' % len(indices)
+    print 'Normals: %s' % len(normals)
+    print 'UVs: %s' % len(uvs)
 
-            mesh_data['vertices'].append(vertex)
-
-            normal = get_normal(mesh, i, j)
-            mesh_data['normals'].append(normal)
-
-            uv = get_uv(mesh, i, j)
-            mesh_data['uvs'].append(uv)
-
-    mesh_data['faces'] = range(len(mesh_data['vertices']))
-
-    return mesh_data
+    return {'vertices': vertices, 'indices': indices, 'normals': normals, 'uvs': uvs}
 
 
-def triangulate_mesh(mesh):
-    if mesh.IsTriangleMesh() is False:
-        geometry_converter = FbxGeometryConverter(sdk_manager)
-        mesh = geometry_converter.TriangulateMesh(mesh)
+def mesh_only_uses_control_points(mesh):
+    '''If normals or UVs are defined by polygon vertex, duplicate vertex data
+    is needed. Otherwise we can use only the control points.'''
 
-    return mesh
+    if mesh.GetLayerCount() > 0:
+        layer = mesh.GetLayer(0)
 
+        normals = layer.GetNormals()
 
-def get_vertex(mesh, control_points, polygon_index, vertex_index):
-    i = mesh.GetPolygonVertex(polygon_index, vertex_index)
-    p = control_points[i]
-    return p
+        if normals:
+            normal_mapping_mode = normals.GetMappingMode()
+            if normal_mapping_mode != FbxLayerElement.eByControlPoint:
+                return False
 
+        uvs = layer.GetUVs()
 
-# def apply_translation(vertex, translation):
-#     vertex[0] += translation[0]
-#     vertex[1] += translation[1]
-#     vertex[2] += translation[2]
-# 
-#     return vertex
-# 
-# 
-# def apply_rotation(vertex, rotation):
-#     return vertex
-# 
-# 
-# def apply_scale(vertex, scale):
-#     vertex[0] *= scale[0]
-#     vertex[1] *= scale[1]
-#     vertex[2] *= scale[2]
-# 
-#     return vertex
-
-
-def get_normal(mesh, polygon_index, vertex_index):
-    n = FbxVector4()
-    mesh.GetPolygonVertexNormal(polygon_index, vertex_index, n)
-    return [n[0], n[1], n[2]]
-
-
-def get_uv(mesh, polygon_index, vertex_index):
-    # TODO: Support multiple UV layers
-    layer_count = min(mesh.GetLayerCount(), 1)
-
-    for i in range(layer_count):
-        uvs = mesh.GetLayer(i).GetUVs()
         if uvs:
-            if uvs.GetMappingMode() == FbxLayerElement.eByPolygonVertex:
-                j = mesh.GetTextureUVIndex(polygon_index, vertex_index)
+            uv_mapping_mode = uvs.GetMappingMode()
+            if uv_mapping_mode != FbxLayerElement.eByControlPoint:
+                return False
 
-                if (uvs.GetReferenceMode() == FbxLayerElement.eDirect or
-                        uvs.GetReferenceMode() ==
-                        FbxLayerElement.eIndexToDirect):
-                        return uvs.GetDirectArray().GetAt(j)
+    return True
 
 
-def flatten(expanded_list):
-    try:
-        if isinstance(expanded_list, list):
-            return [x for sublist in expanded_list
-                    for x in sublist]
-        else:
-            return expanded_list
-    except TypeError:
-        return expanded_list
+def parse_mesh_by_control_point(mesh, polygon_count, control_points):
+    vertex_count = mesh.GetControlPointsCount()
+
+    vertices = []
+    indices = range(vertex_count)
+    normals = []
+    uvs = []
+
+    normal_element = None
+    uv_element = None
+
+    if mesh.GetLayerCount() > 0:
+        layer = mesh.GetLayer(0)
+        normal_element = layer.GetNormals()
+        uv_element = layer.GetUVs()
+
+    for i in range(vertex_count):
+        vertices.append(control_points[i][0])
+        vertices.append(control_points[i][1])
+        vertices.append(control_points[i][2])
+
+        if normal_element:
+            normal_index = i
+
+            if normal_element.GetReferenceMode() == FbxLayerElement.eIndexToDirect:
+                normal_index = normal_element.GetIndexArray().GetAt(i)
+
+            normal = normal_element.GetDirectArray().GetAt(normal_index)
+            normals.append(normal[0])
+            normals.append(normal[1])
+            normals.append(normal[2])
+
+        if uv_element:
+            uv_index = i
+
+            if uv_element.GetReferenceMode() == FbxLayerElement.eIndexToDirect:
+                uv_index = uv_element.GetIndexArray().GetAt(i)
+
+            uv = uv_element.GetDirectArray().GetAt(uv_index)
+            uvs.append(uv[0])
+            uvs.append(uv[1])
+
+    return (vertices, indices, normals, uvs)
+
+
+def parse_mesh_by_other_mapping_mode(mesh, polygon_count, control_points):
+    vertex_count = polygon_count * TRIANGLE_VERTEX_COUNT * VERTEX_STRIDE
+
+    vertices = []
+    indices = range(vertex_count/VERTEX_STRIDE)
+    normals = []
+    uvs = []
+
+    normal_element = None
+    uv_element = None
+
+    if mesh.GetLayerCount() > 0:
+        layer = mesh.GetLayer(0)
+        normal_element = layer.GetNormals()
+        uv_element = layer.GetUVs()
+        if uv_element:
+            uv_name = uv_element.GetName()
+
+    for i in range(polygon_count):
+        for j in range(TRIANGLE_VERTEX_COUNT):
+            index = mesh.GetPolygonVertex(i,j)
+
+            vertex = control_points[index]
+            vertices.append(vertex[0])
+            vertices.append(vertex[1])
+            vertices.append(vertex[2])
+
+            if normal_element:
+                normal = FbxVector4()
+                mesh.GetPolygonVertexNormal(i, j, normal)
+                normals.append(normal[0])
+                normals.append(normal[1])
+                normals.append(normal[2])
+
+            if uv_element:
+                uv = FbxVector2()
+                mesh.GetPolygonVertexUV(i, j, uv_name, uv)
+                uvs.append(uv[0])
+                uvs.append(uv[1])
+
+    return (vertices, indices, normals, uvs)
 
 
 def output_file_name(requested_name, i):
