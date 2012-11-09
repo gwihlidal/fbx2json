@@ -39,16 +39,18 @@ TRIANGLE_VERTEX_COUNT = 3
 VERTEX_STRIDE = 3
 
 sdk_manager = None
+scene = None
 
 
 def process(scene_file, output_file):
     global sdk_manager
+    global scene
 
     sdk_manager, scene = InitializeSdkObjects()
     LoadScene(sdk_manager, scene, scene_file)
 
     root_node = scene.GetRootNode()
-    root_node = triangulate_mesh(root_node)
+    triangulate_mesh(root_node)
 
     output_data = walk_scene_graph(root_node)
 
@@ -69,14 +71,12 @@ def triangulate_mesh(node):
         if (node_attribute_type == FbxNodeAttribute.eMesh or
             node_attribute_type == FbxNodeAttribute.eNurbs or
             node_attribute_type == FbxNodeAttribute.eNurbsSurface or
-            node_attribute_type == FbxNodeAttribute.ePatch):
+                node_attribute_type == FbxNodeAttribute.ePatch):
                 geometry_converter = FbxGeometryConverter(sdk_manager)
                 geometry_converter.TriangulateInPlace(node)
 
     for i in range(node.GetChildCount()):
         triangulate_mesh(node.GetChild(i))
-
-    return node
 
 
 def walk_scene_graph(root_node):
@@ -93,24 +93,9 @@ def parse_node(node, scene_graph):
     node_attribute = node.GetNodeAttribute()
     node_attribute_type = node_attribute.GetAttributeType()
 
-    # print_node_attribute_type(node_attribute_type)
-
-    if node_attribute_type == FbxNodeAttribute.eMarker:
-        pass
-    elif node_attribute_type == FbxNodeAttribute.eSkeleton:
-        pass
-    elif node_attribute_type == FbxNodeAttribute.eMesh:
-        scene_graph.append(parse_mesh(node, node_attribute))
-    elif node_attribute_type == FbxNodeAttribute.eNull:
-        pass
-    elif node_attribute_type == FbxNodeAttribute.eNurbs:
-        pass
-    elif node_attribute_type == FbxNodeAttribute.ePatch:
-        pass
-    elif node_attribute_type == FbxNodeAttribute.eCamera:
-        pass
-    elif node_attribute_type == FbxNodeAttribute.eLight:
-        pass
+    if node_attribute_type == FbxNodeAttribute.eMesh:
+        mesh_data = parse_mesh(node, node_attribute)
+        scene_graph.append(mesh_data)
 
     for i in range(node.GetChildCount()):
         parse_node(node.GetChild(i), scene_graph)
@@ -118,18 +103,7 @@ def parse_node(node, scene_graph):
     return scene_graph
 
 
-def print_node_attribute_type(node_attribute_type):
-    '''Helper method for viewing/debugging scene graph structure.'''
-    node_attribute_types = ('eUnknown', 'eNull', 'eMarker', 'eSkeleton', 
-                            'eMesh', 'eNurbs', 'ePatch', 'eCamera', 
-                            'eCameraStereo', 'eCameraSwitcher', 'eLight', 
-                            'eOpticalReference', 'eOpticalMarker', 
-                            'eNurbsCurve', 'eTrimNurbsSurface', 'eBoundary',
-                            'eNurbsSurface', 'eShape', 'eLODGroup', 'eSubDiv', 
-                            'eCachedEffect', 'eLine')
-    print node_attribute_types[node_attribute_type]
-
-
+# TODO: Replace list with VO
 def parse_mesh(node, mesh):
     polygon_count = mesh.GetPolygonCount()
     control_points = mesh.GetControlPoints()
@@ -137,21 +111,28 @@ def parse_mesh(node, mesh):
     control_points = bake_global_positions(node, control_points)
 
     if mesh_only_uses_control_points(mesh):
-        vertices, indices, normals, uvs = parse_mesh_by_control_point(mesh, polygon_count, control_points)
+        mesh_data = parse_mesh_by_control_point(mesh, polygon_count,
+                                                control_points)
     else:
-        vertices, indices, normals, uvs = parse_mesh_by_other_mapping_mode(mesh, polygon_count, control_points)
+        mesh_data = parse_mesh_by_other_mapping_mode(mesh, polygon_count,
+                                                     control_points)
 
-    print 'Vertices: %s' % len(vertices)
-    print 'Indices: %s' % len(indices)
-    print 'Normals: %s' % len(normals)
-    print 'UVs: %s' % len(uvs)
+    material = parse_material(node)
 
-    return {'vertices': vertices, 'indices': indices, 'normals': normals, 'uvs': uvs}
+    return {'vertices': mesh_data[0],
+            'indices': mesh_data[1],
+            'normals': mesh_data[2],
+            'uvs': mesh_data[3],
+            'material': material}
 
 
 def bake_global_positions(node, control_points):
     time = FbxTime()
     pose = None
+
+    if (scene.GetPoseCount() > 0):
+        pose = scene.GetPose(0)
+
     global_position = get_global_position(node, time, pose)
 
     geometry_offset = get_geometry(node)
@@ -167,22 +148,24 @@ def get_global_position(node, time, pose):
     global_position = FbxAMatrix()
     position_found = False
 
-    # if (pose):
-    #     node_index = pose.Find(node)
-    # 
-    #     if (node_index > -1):
-    #         if (pose.IsBindPose() or not pose.IsLocalMatrix(node_index)):
-    #             lGlobalPosition = GetPoseMatrix(pPose, lNodeIndex);
-    #         else:
-    #             parent_global_position = FbxAMatrix()
-    # 
-    #             if node.GetParent():
-    #                 parent_global_position = get_global_position(node.GetParent(), time, pose)
-    # 
-    #             local_position = get_pose_matrix(pose, node_index)
-    #             global_position = global_position * local_position
-    # 
-    #         position_found = True
+    if (pose):
+        node_index = pose.Find(node)
+
+        if (node_index > -1):
+            # The bind pose is always a global matrix
+            if (pose.IsBindPose() or not pose.IsLocalMatrix(node_index)):
+                global_position = get_pose_matrix(pose, node_index)
+            else:
+                parent_global_position = FbxAMatrix()
+
+                if node.GetParent():
+                    parent_global_position = get_global_position(
+                        node.GetParent(), time, pose)
+
+                local_position = get_pose_matrix(pose, node_index)
+                global_position = global_position * local_position
+
+            position_found = True
 
     if not position_found:
         global_position = node.EvaluateGlobalTransform(time)
@@ -195,12 +178,28 @@ def get_geometry(node):
     rotation = node.GetGeometricRotation(FbxNode.eSourcePivot)
     scaling = node.GetGeometricScaling(FbxNode.eSourcePivot)
 
-    matrix = FbxAMatrix()
-    matrix.SetTRS(translation, rotation, scaling)
+    geometry_transform = FbxAMatrix()
+    geometry_transform.SetTRS(translation, rotation, scaling)
 
-    return matrix
+    return geometry_transform
 
 
+def get_pose_matrix(pose, node_index):
+    pose_matrix = pose.GetMatrix(node_index)
+
+    translation = FbxVector4()
+    rotation = FbxQuaternion()
+    shearing = FbxVector4()
+    scaling = FbxVector4()
+    rotation_euler = FbxVector4()
+
+    pose_matrix.GetElements(translation, rotation, shearing, scaling)
+    rotation.ComposeSphericalXYZ(rotation_euler)
+
+    affine_pose_matrix = FbxAMatrix()
+    affine_pose_matrix.SetTRS(translation, rotation_euler, scaling)
+
+    return affine_pose_matrix
 
 
 def mesh_only_uses_control_points(mesh):
@@ -250,8 +249,9 @@ def parse_mesh_by_control_point(mesh, polygon_count, control_points):
 
         if normal_element:
             normal_index = i
+            normal_reference_mode = normal_element.GetReferenceMode()
 
-            if normal_element.GetReferenceMode() == FbxLayerElement.eIndexToDirect:
+            if normal_reference_mode == FbxLayerElement.eIndexToDirect:
                 normal_index = normal_element.GetIndexArray().GetAt(i)
 
             normal = normal_element.GetDirectArray().GetAt(normal_index)
@@ -261,8 +261,9 @@ def parse_mesh_by_control_point(mesh, polygon_count, control_points):
 
         if uv_element:
             uv_index = i
+            uv_reference_mode = uv_element.GetReferenceMode()
 
-            if uv_element.GetReferenceMode() == FbxLayerElement.eIndexToDirect:
+            if uv_reference_mode == FbxLayerElement.eIndexToDirect:
                 uv_index = uv_element.GetIndexArray().GetAt(i)
 
             uv = uv_element.GetDirectArray().GetAt(uv_index)
@@ -276,7 +277,7 @@ def parse_mesh_by_other_mapping_mode(mesh, polygon_count, control_points):
     vertex_count = polygon_count * TRIANGLE_VERTEX_COUNT * VERTEX_STRIDE
 
     vertices = []
-    indices = range(vertex_count/VERTEX_STRIDE)
+    indices = range(vertex_count / VERTEX_STRIDE)
     normals = []
     uvs = []
 
@@ -292,7 +293,7 @@ def parse_mesh_by_other_mapping_mode(mesh, polygon_count, control_points):
 
     for i in range(polygon_count):
         for j in range(TRIANGLE_VERTEX_COUNT):
-            index = mesh.GetPolygonVertex(i,j)
+            index = mesh.GetPolygonVertex(i, j)
 
             vertex = control_points[index]
             vertices.append(vertex[0])
@@ -313,6 +314,49 @@ def parse_mesh_by_other_mapping_mode(mesh, polygon_count, control_points):
                 uvs.append(uv[1])
 
     return (vertices, indices, normals, uvs)
+
+
+# TODO: Refactor
+# TODO: Replace list with VO
+def parse_material(node):
+    data = None
+
+    if node.GetMaterialCount() > 0:
+        data = {}
+
+        material = node.GetMaterial(0)
+
+        transparency = material.TransparencyFactor.Get()
+
+        data['ambient'] = flatten_double(material.Ambient.Get())
+        data['ambient'].append(transparency)
+
+        data['diffuse'] = flatten_double(material.Diffuse.Get())
+        data['diffuse'].append(transparency)
+
+        data['emissive'] = flatten_double(material.Emissive.Get())
+        data['emissive'].append(transparency)
+
+        if material.GetClassId().Is(FbxSurfacePhong.ClassId):
+            data['specular'] = flatten_double(material.Specular.Get())
+            data['specular'].append(transparency)
+
+            data['shininess'] = flatten_double(material.Shininess.Get())
+
+            data['reflection'] = flatten_double(material.Reflection.Get())
+            data['reflection'].append(transparency)
+
+        prop = material.FindProperty(FbxLayerElement.sTextureChannelNames(0))
+
+        if prop.GetSrcObjectCount(FbxTexture.ClassId) > 0:
+            texture = prop.GetSrcObject(FbxTexture.ClassId, 0)
+            data['texture'] = os.path.basename(texture.GetFileName())
+
+    return data
+
+
+def flatten_double(double):
+    return [double[0], double[1], double[2]]
 
 
 def write_file(mesh_data, output_file):

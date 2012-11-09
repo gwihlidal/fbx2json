@@ -6,8 +6,11 @@ A simple command-line utility to convert [Autodesk FBX](http://www.autodesk.com/
 
 ## Features
 
-* Exports mesh data (vertices, normals, uvs and faces) for a single object in an FBX scene
-* Triangulates mesh data to simplify rendering
+* Export multiple objects from a single FBX
+* Vertices are baked in global coordinate space
+* UV, normal and material data is captured for each mesh
+* Meshes are triangulated to simplify rendering
+* Avoids duplicating vertices where possible (eg. if UVs/Normals aren't sharing vertices)
 
 ## Requirements
 
@@ -28,19 +31,19 @@ python fbx2json.py input.fbx output.js
 * ~~[PEP 8](http://www.python.org/dev/peps/pep-0008/) compliance~~
 * ~~Extract and return normals~~
 * ~~Support multiple nodes in the [FBX scene graph](http://docs.autodesk.com/FBX/2013/ENU/FBX-SDK-Documentation/files/GUID-F194000D-5AD4-49C1-86CC-5DAC2CE64E97.htm)~~
-* Capture and apply mesh attributes (e.g. scale, rotate, translate, etc)
-* Capture material attributes (e.g. diffuse, ambient, texture filename, etc)
-* Document JSON output format
+* ~~Capture and apply mesh attributes (e.g. scale, rotate, translate, etc)~~
 * ~~Determine when repeating vertices is necessary (e.g. UVs/normals that share a vertex)~~
 * ~~Error handling, help, instructions, etc~~
+* ~~Support multiple layer element reference modes~~
+* ~~Capture material/texture data for each mesh~~
+* Support rigged character poses
 
 ### Future
 
 * Investigate the [FBX animation format](http://docs.autodesk.com/FBX/2013/ENU/FBX-SDK-Documentation/index.html?url=files/GUID-B3311B8D-5390-4C63-AB9F-662AC7D5C6CC.htm,topicNumber=d30e9650)
-* Support multiple scene graph object types (e.g. Camera, Lights, etc)
-* Potentially support the [Three.js JSON format](https://github.com/mrdoob/three.js/wiki/JSON-Model-format-3.1) / multiple export formats
-* Support multiple layer element reference modes
-* Support multiple layers
+* Investigate the work being done on WebGL JSON standardisation (e.g. https://github.com/KhronosGroup/collada2json/wiki/WebGLTF / https://www.khronos.org/webgl/public-mailing-list/archives/1211/msg00009.html)
+* Automatically convert textures to web-safe formats (e.g. PSD to JPG)
+* Improve material support
 
 ## FBX References
 
