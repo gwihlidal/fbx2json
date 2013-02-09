@@ -14,13 +14,13 @@ A simple command-line utility to convert [Autodesk FBX](http://www.autodesk.com/
 
 ## Requirements
 
-* Python 2.6
-* [Autodesk Python FBX SDK 2013.3](http://usa.autodesk.com/adsk/servlet/pc/item?siteID=123112&id=10775847) ([Installation instructions](http://docs.autodesk.com/FBX/2013/ENU/FBX-SDK-Documentation/index.html?url=files/GUID-2F3A42FA-4C19-42F2-BC4F-B9EC64EA16AA.htm,topicNumber=d30e11018))
+* Boost (brew install boost --with-c++11)
+* [Autodesk C++ FBX SDK 2013.3](http://usa.autodesk.com/adsk/servlet/pc/item?siteID=123112&id=10775847) ([Installation instructions](http://docs.autodesk.com/FBX/2013/ENU/FBX-SDK-Documentation/files/GUID-063B70C4-CADC-42B5-9DCC-55274A8B0837.htm))
 
 ## Usage
 
 ```
-python fbx2json.py input.fbx output.js
+fbx2json input.fbx output.js
 ```
 
 ## Roadmap
@@ -28,7 +28,6 @@ python fbx2json.py input.fbx output.js
 ### 1.0
 
 * ~~Parse command line parameters for in/out files~~
-* ~~[PEP 8](http://www.python.org/dev/peps/pep-0008/) compliance~~
 * ~~Extract and return normals~~
 * ~~Support multiple nodes in the [FBX scene graph](http://docs.autodesk.com/FBX/2013/ENU/FBX-SDK-Documentation/files/GUID-F194000D-5AD4-49C1-86CC-5DAC2CE64E97.htm)~~
 * ~~Capture and apply mesh attributes (e.g. scale, rotate, translate, etc)~~

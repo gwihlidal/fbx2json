@@ -1,0 +1,250 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		DBDD0A8516C69847005187E0 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DBDD0A8416C69847005187E0 /* main.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		DB67981E16C67574008A7966 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		DB67982016C67574008A7966 /* fbx2json */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = fbx2json; sourceTree = BUILT_PRODUCTS_DIR; };
+		DBDD0A8416C69847005187E0 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		DB67981D16C67574008A7966 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		DB67981716C67574008A7966 = {
+			isa = PBXGroup;
+			children = (
+				DBDD0A8616C698A4005187E0 /* Classes */,
+				DBDD0A8416C69847005187E0 /* main.cpp */,
+				DB67982116C67574008A7966 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		DB67982116C67574008A7966 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				DB67982016C67574008A7966 /* fbx2json */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		DBDD0A8616C698A4005187E0 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Classes;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		DB67981F16C67574008A7966 /* fbx2json */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DB67982916C67574008A7966 /* Build configuration list for PBXNativeTarget "fbx2json" */;
+			buildPhases = (
+				DB67981C16C67574008A7966 /* Sources */,
+				DB67981D16C67574008A7966 /* Frameworks */,
+				DB67981E16C67574008A7966 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = fbx2json;
+			productName = fbx2json;
+			productReference = DB67982016C67574008A7966 /* fbx2json */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		DB67981816C67574008A7966 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0460;
+				ORGANIZATIONNAME = "Cameron Yule";
+			};
+			buildConfigurationList = DB67981B16C67574008A7966 /* Build configuration list for PBXProject "fbx2json" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = DB67981716C67574008A7966;
+			productRefGroup = DB67982116C67574008A7966 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				DB67981F16C67574008A7966 /* fbx2json */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		DB67981C16C67574008A7966 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DBDD0A8516C69847005187E0 /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		DB67982716C67574008A7966 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-l",
+					"boost_system-mt",
+					"-l",
+					"boost_program_options-mt",
+				);
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		DB67982816C67574008A7966 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				OTHER_LDFLAGS = (
+					"-l",
+					"boost_system-mt",
+					"-l",
+					"boost_program_options-mt",
+				);
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		DB67982A16C67574008A7966 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				HEADER_SEARCH_PATHS = /usr/local/include/;
+				LIBRARY_SEARCH_PATHS = /usr/local/lib/;
+				OTHER_LDFLAGS = (
+					"-l",
+					"boost_system-mt",
+					"-l",
+					"boost_program_options-mt",
+					"-l",
+					"boost_filesystem-mt",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		DB67982B16C67574008A7966 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				HEADER_SEARCH_PATHS = /usr/local/include/;
+				LIBRARY_SEARCH_PATHS = /usr/local/lib/;
+				OTHER_LDFLAGS = (
+					"-l",
+					"boost_system-mt",
+					"-l",
+					"boost_program_options-mt",
+					"-l",
+					"boost_filesystem-mt",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		DB67981B16C67574008A7966 /* Build configuration list for PBXProject "fbx2json" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DB67982716C67574008A7966 /* Debug */,
+				DB67982816C67574008A7966 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DB67982916C67574008A7966 /* Build configuration list for PBXNativeTarget "fbx2json" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DB67982A16C67574008A7966 /* Debug */,
+				DB67982B16C67574008A7966 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = DB67981816C67574008A7966 /* Project object */;
+}
