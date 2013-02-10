@@ -255,7 +255,6 @@
 		DBB3D21B16C8284F00CB4213 /* fbxusernotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fbxusernotification.h; sourceTree = "<group>"; };
 		DBB3D21C16C8284F00CB4213 /* fbxsdk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fbxsdk.h; sourceTree = "<group>"; };
 		DBB3D21D16C8285E00CB4213 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
-		DBB3D21E16C8286600CB4213 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		DBDD0A8416C69847005187E0 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -277,7 +276,6 @@
 				DBDD0A8616C698A4005187E0 /* Classes */,
 				DBB3D12916C8284F00CB4213 /* include */,
 				DBDD0A8716C6E9A2005187E0 /* Libraries */,
-				DBB3D21E16C8286600CB4213 /* LICENSE */,
 				DBDD0A8416C69847005187E0 /* main.cpp */,
 				DBB3D21D16C8285E00CB4213 /* README.md */,
 				DB67982116C67574008A7966 /* Products */,
