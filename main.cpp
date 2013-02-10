@@ -13,10 +13,10 @@ using namespace std;
 #define FBXSDK_NEW_API true
 #include <fbxsdk.h>
 
-void usage(char* prog)
+void usage(std::string prog)
 {
     std::cerr << prog << ": missing arguments" << std::endl;
-	fprintf(stderr, "\nUSAGE: %s [FBX inputFile] [JSON outputFile] \n", prog);
+	fprintf(stderr, "\nUSAGE: %s [FBX inputFile] [JSON outputFile] \n", prog.c_str());
 }
 
 int main(int argc, char** argv)
