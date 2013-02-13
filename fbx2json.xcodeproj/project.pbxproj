@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DB3FD7D616CBD70F00AA04C2 /* SceneContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DB3FD7D416CBD3D000AA04C2 /* SceneContext.cpp */; };
+		DB3FD7DC16CBD96000AA04C2 /* SceneCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DB3FD7DA16CBD95600AA04C2 /* SceneCache.cpp */; };
 		DBB3D12816C8284000CB4213 /* libfbxsdk-2013.3-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DBB3D12716C8284000CB4213 /* libfbxsdk-2013.3-static.a */; };
 		DBDD0A8516C69847005187E0 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DBDD0A8416C69847005187E0 /* main.cpp */; };
 /* End PBXBuildFile section */
@@ -24,6 +26,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		DB3FD7D416CBD3D000AA04C2 /* SceneContext.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SceneContext.cpp; path = Classes/SceneContext.cpp; sourceTree = "<group>"; };
+		DB3FD7D516CBD3D000AA04C2 /* SceneContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SceneContext.h; path = Classes/SceneContext.h; sourceTree = "<group>"; };
+		DB3FD7DA16CBD95600AA04C2 /* SceneCache.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SceneCache.cpp; path = Classes/SceneCache.cpp; sourceTree = "<group>"; };
+		DB3FD7DB16CBD95600AA04C2 /* SceneCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SceneCache.h; path = Classes/SceneCache.h; sourceTree = "<group>"; };
+		DB3FD7DD16CBDBE200AA04C2 /* glew.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = glew.h; sourceTree = "<group>"; };
 		DB67982016C67574008A7966 /* fbx2json */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = fbx2json; sourceTree = BUILT_PRODUCTS_DIR; };
 		DBB3D12716C8284000CB4213 /* libfbxsdk-2013.3-static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libfbxsdk-2013.3-static.a"; path = "Libraries/libfbxsdk-2013.3-static.a"; sourceTree = "<group>"; };
 		DBB3D12D16C8284F00CB4213 /* fbxalloc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fbxalloc.h; sourceTree = "<group>"; };
@@ -295,6 +302,7 @@
 			children = (
 				DBB3D12A16C8284F00CB4213 /* fbxsdk */,
 				DBB3D21C16C8284F00CB4213 /* fbxsdk.h */,
+				DB3FD7DD16CBDBE200AA04C2 /* glew.h */,
 			);
 			path = include;
 			sourceTree = "<group>";
@@ -648,6 +656,10 @@
 		DBDD0A8616C698A4005187E0 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				DB3FD7DA16CBD95600AA04C2 /* SceneCache.cpp */,
+				DB3FD7DB16CBD95600AA04C2 /* SceneCache.h */,
+				DB3FD7D416CBD3D000AA04C2 /* SceneContext.cpp */,
+				DB3FD7D516CBD3D000AA04C2 /* SceneContext.h */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -712,6 +724,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				DBDD0A8516C69847005187E0 /* main.cpp in Sources */,
+				DB3FD7D616CBD70F00AA04C2 /* SceneContext.cpp in Sources */,
+				DB3FD7DC16CBD96000AA04C2 /* SceneCache.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
