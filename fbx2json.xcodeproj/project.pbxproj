@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		DB3FD7D616CBD70F00AA04C2 /* SceneContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DB3FD7D416CBD3D000AA04C2 /* SceneContext.cpp */; };
 		DB3FD7DC16CBD96000AA04C2 /* SceneCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DB3FD7DA16CBD95600AA04C2 /* SceneCache.cpp */; };
+		DB9D3C6916CCF82B009189B4 /* Common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DB9D3C6716CCF82B009189B4 /* Common.cpp */; };
+		DB9D3C6C16CCFBCF009189B4 /* GLFunctions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DB9D3C6A16CCFBCF009189B4 /* GLFunctions.cpp */; };
+		DB9D3C7116CD021F009189B4 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DB9D3C6F16CCFDED009189B4 /* Cocoa.framework */; };
 		DBB3D12816C8284000CB4213 /* libfbxsdk-2013.3-static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DBB3D12716C8284000CB4213 /* libfbxsdk-2013.3-static.a */; };
 		DBDD0A8516C69847005187E0 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DBDD0A8416C69847005187E0 /* main.cpp */; };
 /* End PBXBuildFile section */
@@ -32,6 +35,11 @@
 		DB3FD7DB16CBD95600AA04C2 /* SceneCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SceneCache.h; path = Classes/SceneCache.h; sourceTree = "<group>"; };
 		DB3FD7DD16CBDBE200AA04C2 /* glew.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = glew.h; sourceTree = "<group>"; };
 		DB67982016C67574008A7966 /* fbx2json */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = fbx2json; sourceTree = BUILT_PRODUCTS_DIR; };
+		DB9D3C6716CCF82B009189B4 /* Common.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Common.cpp; path = Classes/Common.cpp; sourceTree = "<group>"; };
+		DB9D3C6816CCF82B009189B4 /* Common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Common.h; path = Classes/Common.h; sourceTree = "<group>"; };
+		DB9D3C6A16CCFBCF009189B4 /* GLFunctions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GLFunctions.cpp; path = Classes/GLFunctions.cpp; sourceTree = "<group>"; };
+		DB9D3C6B16CCFBCF009189B4 /* GLFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GLFunctions.h; path = Classes/GLFunctions.h; sourceTree = "<group>"; };
+		DB9D3C6F16CCFDED009189B4 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		DBB3D12716C8284000CB4213 /* libfbxsdk-2013.3-static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libfbxsdk-2013.3-static.a"; path = "Libraries/libfbxsdk-2013.3-static.a"; sourceTree = "<group>"; };
 		DBB3D12D16C8284F00CB4213 /* fbxalloc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fbxalloc.h; sourceTree = "<group>"; };
 		DBB3D12E16C8284F00CB4213 /* fbxarch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fbxarch.h; sourceTree = "<group>"; };
@@ -270,6 +278,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DB9D3C7116CD021F009189B4 /* Cocoa.framework in Frameworks */,
 				DBB3D12816C8284000CB4213 /* libfbxsdk-2013.3-static.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -660,6 +669,10 @@
 				DB3FD7DB16CBD95600AA04C2 /* SceneCache.h */,
 				DB3FD7D416CBD3D000AA04C2 /* SceneContext.cpp */,
 				DB3FD7D516CBD3D000AA04C2 /* SceneContext.h */,
+				DB9D3C6716CCF82B009189B4 /* Common.cpp */,
+				DB9D3C6816CCF82B009189B4 /* Common.h */,
+				DB9D3C6A16CCFBCF009189B4 /* GLFunctions.cpp */,
+				DB9D3C6B16CCFBCF009189B4 /* GLFunctions.h */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -667,6 +680,7 @@
 		DBDD0A8716C6E9A2005187E0 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				DB9D3C6F16CCFDED009189B4 /* Cocoa.framework */,
 				DBB3D12716C8284000CB4213 /* libfbxsdk-2013.3-static.a */,
 			);
 			name = Libraries;
@@ -726,6 +740,8 @@
 				DBDD0A8516C69847005187E0 /* main.cpp in Sources */,
 				DB3FD7D616CBD70F00AA04C2 /* SceneContext.cpp in Sources */,
 				DB3FD7DC16CBD96000AA04C2 /* SceneCache.cpp in Sources */,
+				DB9D3C6916CCF82B009189B4 /* Common.cpp in Sources */,
+				DB9D3C6C16CCFBCF009189B4 /* GLFunctions.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -804,6 +820,9 @@
 		DB67982A16C67574008A7966 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				HEADER_SEARCH_PATHS = ./include/;
 				LIBRARY_SEARCH_PATHS = ./Libraries/;
 				OTHER_LDFLAGS = (
@@ -817,6 +836,9 @@
 		DB67982B16C67574008A7966 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				HEADER_SEARCH_PATHS = ./include/;
 				LIBRARY_SEARCH_PATHS = ./Libraries/;
 				OTHER_LDFLAGS = (
