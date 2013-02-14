@@ -20,14 +20,14 @@
 class SceneContext
 {
 public:
-    enum Status
-    {
-        UNLOADED,               // Unload file or load failure;
-        MUST_BE_LOADED,         // Ready for loading file;
-        MUST_BE_REFRESHED,      // Something changed and redraw needed;
-        REFRESHED               // No redraw needed.
-    };
-    Status GetStatus() const { return mStatus; }
+//    enum Status
+//    {
+//        UNLOADED,               // Unload file or load failure;
+//        MUST_BE_LOADED,         // Ready for loading file;
+//        MUST_BE_REFRESHED,      // Something changed and redraw needed;
+//        REFRESHED               // No redraw needed.
+//    };
+//    Status GetStatus() const { return mStatus; }
     
     SceneContext(const char * pFileName, bool pSupportVBO);
     ~SceneContext();
@@ -59,7 +59,7 @@ public:
     
 private:
     const char * mFileName;
-    mutable Status mStatus;
+//    mutable Status mStatus;
 //    mutable FbxString mWindowMessage;
     
     FbxManager * mSdkManager;

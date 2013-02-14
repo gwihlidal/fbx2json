@@ -31,7 +31,7 @@ namespace
             if (pNode->GetNodeAttribute())
             {
                 if (pNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eCamera)
-                {
+                {                   
                     pCameraArray.Add(pNode);
                 }
             }
@@ -405,7 +405,7 @@ namespace
 }
 
 SceneContext::SceneContext(const char * pFileName, bool pSupportVBO)
-: mFileName(pFileName), mStatus(UNLOADED), mSupportVBO(pSupportVBO),
+: mFileName(pFileName), mSupportVBO(pSupportVBO),
 mSdkManager(NULL), mScene(NULL), mImporter(NULL), mCurrentAnimLayer(NULL), mSelectedNode(NULL),
 mPoseIndex(-1), mShadingMode(SHADING_MODE_SHADED)
 {   
@@ -419,25 +419,19 @@ mPoseIndex(-1), mShadingMode(SHADING_MODE_SHADED)
     
     if (mSdkManager)
     {
-        // Create the importer.
         int lFileFormat = -1;
+        
         mImporter = FbxImporter::Create(mSdkManager,"");
+        
         if (!mSdkManager->GetIOPluginRegistry()->DetectReaderFileFormat(mFileName, lFileFormat) )
         {
             // Unrecognizable file format. Try to fall back to FbxImporter::eFBX_BINARY
             lFileFormat = mSdkManager->GetIOPluginRegistry()->FindReaderIDByDescription( "FBX binary (*.fbx)" );;
         }
         
-        // Initialize the importer by providing a filename.
         if(mImporter->Initialize(mFileName, lFileFormat) == true)
         {
-            // The file is going to be imported at
-            // the end of the first display callback.
-            std::cout << "Importing file " << mFileName << std::endl;
-            std::cout << "Please wait." << std::endl;
-            
-            // Set scene status flag to ready to load.
-            mStatus = MUST_BE_LOADED;
+            std::cout << "Importing file " << mFileName << ". Please wait." << std::endl;
 
             LoadFile();
         }
@@ -472,80 +466,60 @@ SceneContext::~SceneContext()
 bool SceneContext::LoadFile()
 {
     bool lResult = false;
-    // Make sure that the scene is ready to load.
-    if (mStatus == MUST_BE_LOADED)
-    {
-        if (mImporter->Import(mScene) == true)
+
+    if (mImporter->Import(mScene) == true)
+    {            
+        // Convert Axis System to what is used in this example, if needed
+        FbxAxisSystem SceneAxisSystem = mScene->GetGlobalSettings().GetAxisSystem();
+        FbxAxisSystem OurAxisSystem(FbxAxisSystem::eYAxis, FbxAxisSystem::eParityOdd, FbxAxisSystem::eRightHanded);
+        
+        if( SceneAxisSystem != OurAxisSystem )
         {
-            // Set the scene status flag to refresh
-            // the scene in the first timer callback.
-            mStatus = MUST_BE_REFRESHED;
-            
-            // Convert Axis System to what is used in this example, if needed
-            FbxAxisSystem SceneAxisSystem = mScene->GetGlobalSettings().GetAxisSystem();
-            FbxAxisSystem OurAxisSystem(FbxAxisSystem::eYAxis, FbxAxisSystem::eParityOdd, FbxAxisSystem::eRightHanded);
-            if( SceneAxisSystem != OurAxisSystem )
-            {
-                OurAxisSystem.ConvertScene(mScene);
-            }
-            
-            // Convert Unit System to what is used in this example, if needed
-            FbxSystemUnit SceneSystemUnit = mScene->GetGlobalSettings().GetSystemUnit();
-            if( SceneSystemUnit.GetScaleFactor() != 1.0 )
-            {
-                //The unit in this example is centimeter.
-                FbxSystemUnit::cm.ConvertScene( mScene);
-            }
-            
-            // Get the list of all the animation stack.
-            mScene->FillAnimStackNameArray(mAnimStackNameArray);
-            
-            // Get the list of all the cameras in the scene.
-            FillCameraArray(mScene, mCameraArray);
-            
-            // Convert mesh, NURBS and patch into triangle mesh
-            TriangulateRecursive(mScene->GetRootNode());
-            
-            // Bake the scene for one frame
-            LoadCacheRecursive(mScene, mCurrentAnimLayer, mFileName, mSupportVBO);
-            
-            // Convert any .PC2 point cache data into the .MC format for
-            // vertex cache deformer playback.
-            PreparePointCacheData(mScene, mCache_Start, mCache_Stop);
-            
-            // Get the list of pose in the scene
-            FillPoseArray(mScene, mPoseArray);
-            
-            // Initialize the window message.
-//            mWindowMessage = "File ";
-//            mWindowMessage += mFileName;
-//            mWindowMessage += "\nClick on the right mouse button to enter menu.";
-//            mWindowMessage += "\nEsc to exit.";
-            
-            // Initialize the frame period.
-            mFrameTime.SetTime(0, 0, 0, 1, 0, mScene->GetGlobalSettings().GetTimeMode());
-            
-            // Print the keyboard shortcuts.
-//            FBXSDK_printf("Play/Pause Animation: Space Bar.\n");
-//            FBXSDK_printf("Camera Rotate: Left Mouse Button.\n");
-//            FBXSDK_printf("Camera Pan: Left Mouse Button + Middle Mouse Button.\n");
-//            FBXSDK_printf("Camera Zoom: Middle Mouse Button.\n");
-            
-            lResult = true;
-        }
-        else
-        {
-            // Import failed, set the scene status flag accordingly.
-            mStatus = UNLOADED;
-            
-            std::cerr << "Unable to import file " << mFileName << std::endl;
-            std::cerr << "Error reported: " << mImporter->GetLastErrorString() << std::endl;
+            OurAxisSystem.ConvertScene(mScene);
         }
         
-        // Destroy the importer to release the file.
-        mImporter->Destroy();
-        mImporter = NULL;
+        // Convert Unit System to what is used in this example, if needed
+        FbxSystemUnit SceneSystemUnit = mScene->GetGlobalSettings().GetSystemUnit();
+        
+        if( SceneSystemUnit.GetScaleFactor() != 1.0 )
+        {
+            //The unit in this example is centimeter.
+            FbxSystemUnit::cm.ConvertScene(mScene);
+        }
+        
+        // Get the list of all the animation stack.
+        mScene->FillAnimStackNameArray(mAnimStackNameArray);
+        
+        // Get the list of all the cameras in the scene.
+        FillCameraArray(mScene, mCameraArray);
+        
+        // Convert mesh, NURBS and patch into triangle mesh
+        TriangulateRecursive(mScene->GetRootNode());
+        
+        // Bake the scene for one frame
+        LoadCacheRecursive(mScene, mCurrentAnimLayer, mFileName, mSupportVBO);
+        
+        // Convert any .PC2 point cache data into the .MC format for
+        // vertex cache deformer playback.
+        PreparePointCacheData(mScene, mCache_Start, mCache_Stop);
+        
+        // Get the list of pose in the scene
+        FillPoseArray(mScene, mPoseArray);
+        
+        // Initialize the frame period.
+        mFrameTime.SetTime(0, 0, 0, 1, 0, mScene->GetGlobalSettings().GetTimeMode());
+        
+        lResult = true;
     }
+    else
+    {           
+        std::cerr << "Unable to import file " << mFileName << std::endl;
+        std::cerr << "Error reported: " << mImporter->GetLastErrorString() << std::endl;
+    }
+    
+    // Destroy the importer to release the file.
+    mImporter->Destroy();
+    mImporter = NULL;
     
     return lResult;
 }
