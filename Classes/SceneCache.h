@@ -1,16 +1,21 @@
-//
-//  SceneCache.h
-//  fbx2json
-//
-//  Created by Cameron Yule on 13/02/2013.
-//  Copyright (c) 2013 Cameron Yule. All rights reserved.
-//
+/****************************************************************************************
+ 
+ Copyright (C) 2012 Autodesk, Inc.
+ All rights reserved.
+ 
+ Use of this software is subject to the terms of the Autodesk license agreement
+ provided at the time of installation or download, or which otherwise accompanies
+ this software in either electronic or hard copy form.
+ 
+ ****************************************************************************************/
 
 #ifndef __fbx2json__SceneCache__
 #define __fbx2json__SceneCache__
 
 #include <fbxsdk.h>
 #include <glew.h>
+
+#include "GlFunctions.h"
 
 // Save mesh vertices, normals, UVs and indices in GPU with OpenGL Vertex Buffer Objects
 class VBOMesh
@@ -129,13 +134,13 @@ public:
     
     // Set ambient light. Turn on light0 and set its attributes to default (white directional light in Z axis).
     // If the scene contains at least one light, the attributes of light0 will be overridden.
-    static void IntializeEnvironment(const FbxColor & pAmbientLight);
+//    static void IntializeEnvironment(const FbxColor & pAmbientLight);
     
     bool Initialize(const FbxLight * pLight, FbxAnimLayer * pAnimLayer);
     
     // Draw a geometry (sphere for point and directional light, cone for spot light).
     // And set light attributes.
-    void SetLight(const FbxTime & pTime) const;
+//    void SetLight(const FbxTime & pTime) const;
     
 private:
     static int sLightCount;         // How many lights in this scene.

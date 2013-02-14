@@ -1,16 +1,25 @@
-//
-//  SceneContext.cpp
-//  fbx2json
-//
+/****************************************************************************************
+ 
+ Copyright (C) 2012 Autodesk, Inc.
+ All rights reserved.
+ 
+ Use of this software is subject to the terms of the Autodesk license agreement
+ provided at the time of installation or download, or which otherwise accompanies
+ this software in either electronic or hard copy form.
+ 
+ ****************************************************************************************///
+
+#include <iostream>
+#include <string>
+using namespace std;
 
 #include "SceneContext.h"
-
 #include "SceneCache.h"
 //#include "SetCamera.h"
 //#include "DrawScene.h"
 //#include "DrawText.h"
 //#include "targa.h"
-//#include "../Common/Common.h"
+#include "Common.h"
 
 namespace
 {
@@ -143,46 +152,46 @@ namespace
         }
     }
     
-    //    // Load a texture file (TGA only now) into GPU and return the texture object name
-    //    bool LoadTextureFromFile(const FbxString & pFilePath, GLuint & pTextureObject)
-    //    {
-    //        if (pFilePath.Right(3).Upper() == "TGA")
-    //        {
-    //            tga_image lTGAImage;
-    //
-    //            if (tga_read(&lTGAImage, pFilePath.Buffer()) == TGA_NOERR)
-    //            {
-    //                // Make sure the image is left to right
-    //                if (tga_is_right_to_left(&lTGAImage))
-    //                    tga_flip_horiz(&lTGAImage);
-    //
-    //                // Make sure the image is bottom to top
-    //                if (tga_is_top_to_bottom(&lTGAImage))
-    //                    tga_flip_vert(&lTGAImage);
-    //
-    //                // Make the image BGR 24
-    //                tga_convert_depth(&lTGAImage, 24);
-    //
-    //                // Transfer the texture date into GPU
-    //                glGenTextures(1, &pTextureObject);
-    //                glBindTexture(GL_TEXTURE_2D, pTextureObject);
-    //                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    //                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    //                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    //                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    //                glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-    //                glTexImage2D(GL_TEXTURE_2D, 0, 3, lTGAImage.width, lTGAImage.height, 0, GL_BGR,
-    //                             GL_UNSIGNED_BYTE, lTGAImage.image_data);
-    //                glBindTexture(GL_TEXTURE_2D, 0);
-    //
-    //                tga_free_buffers(&lTGAImage);
-    //
-    //                return true;
-    //            }
-    //        }
-    //
-    //        return false;
-    //    }
+    // Load a texture file (TGA only now) into GPU and return the texture object name
+//    bool LoadTextureFromFile(const FbxString & pFilePath, GLuint & pTextureObject)
+//    {
+//        if (pFilePath.Right(3).Upper() == "TGA")
+//        {
+//            tga_image lTGAImage;
+//            
+//            if (tga_read(&lTGAImage, pFilePath.Buffer()) == TGA_NOERR)
+//            {
+//                // Make sure the image is left to right
+//                if (tga_is_right_to_left(&lTGAImage))
+//                    tga_flip_horiz(&lTGAImage);
+//                
+//                // Make sure the image is bottom to top
+//                if (tga_is_top_to_bottom(&lTGAImage))
+//                    tga_flip_vert(&lTGAImage);
+//                
+//                // Make the image BGR 24
+//                tga_convert_depth(&lTGAImage, 24);
+//                
+//                // Transfer the texture date into GPU
+//                glGenTextures(1, &pTextureObject);
+//                glBindTexture(GL_TEXTURE_2D, pTextureObject);
+//                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+//                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+//                glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+//                glTexImage2D(GL_TEXTURE_2D, 0, 3, lTGAImage.width, lTGAImage.height, 0, GL_BGR,
+//                             GL_UNSIGNED_BYTE, lTGAImage.image_data);
+//                glBindTexture(GL_TEXTURE_2D, 0);
+//                
+//                tga_free_buffers(&lTGAImage);
+//                
+//                return true;
+//            }
+//        }
+//        
+//        return false;
+//    }
     
     // Triangulate all NURBS, patch and mesh under this node recursively.
     void TriangulateRecursive(FbxNode* pNode)
@@ -337,7 +346,8 @@ namespace
                 }
                 
                 GLuint lTextureObject = 0;
-                bool lStatus = LoadTextureFromFile(lFileName, lTextureObject);
+                bool lStatus = true;
+//                bool lStatus = LoadTextureFromFile(lFileName, lTextureObject);
                 
                 const FbxString lAbsFbxFileName = FbxPathUtils::Resolve(pFbxFileName);
                 const FbxString lAbsFolderName = FbxPathUtils::GetFolderName(lAbsFbxFileName);
@@ -345,7 +355,7 @@ namespace
                 {
                     // Load texture from relative file name (relative to FBX file)
                     const FbxString lResolvedFileName = FbxPathUtils::Bind(lAbsFolderName, lFileTexture->GetRelativeFileName());
-                    lStatus = LoadTextureFromFile(lResolvedFileName, lTextureObject);
+//                    lStatus = LoadTextureFromFile(lResolvedFileName, lTextureObject);
                 }
                 
                 if (!lStatus)
@@ -353,7 +363,7 @@ namespace
                     // Load texture from file name only (relative to FBX file)
                     const FbxString lTextureFileName = FbxPathUtils::GetFileName(lFileName);
                     const FbxString lResolvedFileName = FbxPathUtils::Bind(lAbsFolderName, lTextureFileName);
-                    lStatus = LoadTextureFromFile(lResolvedFileName, lTextureObject);
+//                    lStatus = LoadTextureFromFile(lResolvedFileName, lTextureObject);
                 }
                 
                 if (!lStatus)
@@ -385,7 +395,7 @@ namespace
             {
                 GLuint * lTextureName = static_cast<GLuint *>(lFileTexture->GetUserDataPtr());
                 lFileTexture->SetUserDataPtr(NULL);
-                glDeleteTextures(1, lTextureName);
+//                glDeleteTextures(1, lTextureName);
                 delete lTextureName;
             }
         }
@@ -395,15 +405,10 @@ namespace
 }
 
 SceneContext::SceneContext(const char * pFileName, bool pSupportVBO)
-: mFileName(pFileName), mStatus(UNLOADED),
+: mFileName(pFileName), mStatus(UNLOADED), mSupportVBO(pSupportVBO),
 mSdkManager(NULL), mScene(NULL), mImporter(NULL), mCurrentAnimLayer(NULL), mSelectedNode(NULL),
-mPoseIndex(-1), mCameraStatus(CAMERA_NOTHING), mPause(false), mShadingMode(SHADING_MODE_SHADED),
-mSupportVBO(pSupportVBO), mCameraZoomMode(ZOOM_FOCAL_LENGTH),
-mWindowWidth(pWindowWidth), mWindowHeight(pWindowHeight), mDrawText(new DrawText)
-{
-    if (mFileName == NULL)
-        mFileName = SAMPLE_FILENAME;
-    
+mPoseIndex(-1), mShadingMode(SHADING_MODE_SHADED)
+{   
 	// initialize cache start and stop time
 	mCache_Start = FBXSDK_TIME_INFINITE;
 	mCache_Stop  = FBXSDK_TIME_MINUS_INFINITE;
@@ -428,34 +433,29 @@ mWindowWidth(pWindowWidth), mWindowHeight(pWindowHeight), mDrawText(new DrawText
         {
             // The file is going to be imported at
             // the end of the first display callback.
-            mWindowMessage = "Importing file ";
-            mWindowMessage += mFileName;
-            mWindowMessage += "\nPlease wait!";
+            std::cout << "Importing file " << mFileName << std::endl;
+            std::cout << "Please wait." << std::endl;
             
             // Set scene status flag to ready to load.
             mStatus = MUST_BE_LOADED;
+
+            LoadFile();
         }
         else
         {
-            mWindowMessage = "Unable to open file ";
-            mWindowMessage += mFileName;
-            mWindowMessage += "\nError reported: ";
-            mWindowMessage += mImporter->GetLastErrorString();
-            mWindowMessage += "\nEsc to exit";
+            std::cerr << "Unable to open file " << mFileName << std::endl;
+            std::cerr << "Error reported: " << mImporter->GetLastErrorString() << std::endl;
         }
     }
     else
     {
-        mWindowMessage = "Unable to create the FBX SDK manager";
-        mWindowMessage += "\nEsc to exit";
+        std::cerr << "Unable to create the FBX SDK manager.";
     }
 }
 
 SceneContext::~SceneContext()
 {
     FbxArrayDelete(mAnimStackNameArray);
-    
-    delete mDrawText;
     
     // Unload the cache and free the memory
     if (mScene)
@@ -517,19 +517,19 @@ bool SceneContext::LoadFile()
             FillPoseArray(mScene, mPoseArray);
             
             // Initialize the window message.
-            mWindowMessage = "File ";
-            mWindowMessage += mFileName;
-            mWindowMessage += "\nClick on the right mouse button to enter menu.";
-            mWindowMessage += "\nEsc to exit.";
+//            mWindowMessage = "File ";
+//            mWindowMessage += mFileName;
+//            mWindowMessage += "\nClick on the right mouse button to enter menu.";
+//            mWindowMessage += "\nEsc to exit.";
             
             // Initialize the frame period.
             mFrameTime.SetTime(0, 0, 0, 1, 0, mScene->GetGlobalSettings().GetTimeMode());
             
             // Print the keyboard shortcuts.
-            FBXSDK_printf("Play/Pause Animation: Space Bar.\n");
-            FBXSDK_printf("Camera Rotate: Left Mouse Button.\n");
-            FBXSDK_printf("Camera Pan: Left Mouse Button + Middle Mouse Button.\n");
-            FBXSDK_printf("Camera Zoom: Middle Mouse Button.\n");
+//            FBXSDK_printf("Play/Pause Animation: Space Bar.\n");
+//            FBXSDK_printf("Camera Rotate: Left Mouse Button.\n");
+//            FBXSDK_printf("Camera Pan: Left Mouse Button + Middle Mouse Button.\n");
+//            FBXSDK_printf("Camera Zoom: Middle Mouse Button.\n");
             
             lResult = true;
         }
@@ -538,10 +538,8 @@ bool SceneContext::LoadFile()
             // Import failed, set the scene status flag accordingly.
             mStatus = UNLOADED;
             
-            mWindowMessage = "Unable to import file ";
-            mWindowMessage += mFileName;
-            mWindowMessage += "\nError reported: ";
-            mWindowMessage += mImporter->GetLastErrorString();
+            std::cerr << "Unable to import file " << mFileName << std::endl;
+            std::cerr << "Error reported: " << mImporter->GetLastErrorString() << std::endl;
         }
         
         // Destroy the importer to release the file.
