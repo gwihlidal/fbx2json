@@ -15,6 +15,8 @@ using namespace std;
 
 #include "SceneContext.h"
 
+void ExitFunction();
+
 SceneContext * gSceneContext;
 
 void usage(std::string prog)
@@ -26,14 +28,25 @@ void usage(std::string prog)
 int main(int argc, char** argv)
 {
     if (argc < 3) {
-        usage(argv[0]);
-        return EXIT_FAILURE;
+        argv[1] = "/Users/cameronyule/projects/personal/fbx2json/samples/drillbugtest.fbx";
+        argv[2] = "out.js";
+//        usage(argv[0]);
+//        return EXIT_FAILURE;
     }
+    
+    // Set exit function to destroy objects created by the FBX SDK.
+    atexit(ExitFunction);
 
     std::string inputFile = argv[1];
     std::string outputFile = argv[2];
     
-    gSceneContext = new SceneContext(inputFile.c_str(), true);
+    gSceneContext = new SceneContext(inputFile.c_str());
 
     return EXIT_SUCCESS;
+}
+
+// Function to destroy objects created by the FBX SDK.
+void ExitFunction()
+{
+    delete gSceneContext;
 }

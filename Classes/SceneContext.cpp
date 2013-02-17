@@ -15,184 +15,10 @@ using namespace std;
 
 #include "SceneContext.h"
 #include "SceneCache.h"
-//#include "SetCamera.h"
-//#include "DrawScene.h"
-//#include "DrawText.h"
-//#include "targa.h"
 #include "Common.h"
 
 namespace
-{
-    // Find all the cameras under this node recursively.
-    void FillCameraArrayRecursive(FbxNode* pNode, FbxArray<FbxNode*>& pCameraArray)
-    {
-        if (pNode)
-        {
-            if (pNode->GetNodeAttribute())
-            {
-                if (pNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eCamera)
-                {                   
-                    pCameraArray.Add(pNode);
-                }
-            }
-            
-            const int lCount = pNode->GetChildCount();
-            for (int i = 0; i < lCount; i++)
-            {
-                FillCameraArrayRecursive(pNode->GetChild(i), pCameraArray);
-            }
-        }
-    }
-    
-    // Find all the cameras in this scene.
-    void FillCameraArray(FbxScene* pScene, FbxArray<FbxNode*>& pCameraArray)
-    {
-        pCameraArray.Clear();
-        
-        FillCameraArrayRecursive(pScene->GetRootNode(), pCameraArray);
-    }
-    
-    // Find all poses in this scene.
-    void FillPoseArray(FbxScene* pScene, FbxArray<FbxPose*>& pPoseArray)
-    {
-        const int lPoseCount = pScene->GetPoseCount();
-        
-        for (int i=0; i < lPoseCount; ++i)
-        {
-            pPoseArray.Add(pScene->GetPose(i));
-        }
-    }
-    
-    void PreparePointCacheData(FbxScene* pScene, FbxTime &pCache_Start, FbxTime &pCache_Stop)
-    {
-        // This function show how to cycle through scene elements in a linear way.
-		const int lNodeCount = pScene->GetSrcObjectCount<FbxNode>();
-        
-        for (int lIndex=0; lIndex<lNodeCount; lIndex++)
-        {
-            FbxNode* lNode = pScene->GetSrcObject<FbxNode>(lIndex);
-            
-            if (lNode->GetGeometry())
-            {
-                int i, lVertexCacheDeformerCount = lNode->GetGeometry()->GetDeformerCount(FbxDeformer::eVertexCache);
-                
-                // There should be a maximum of 1 Vertex Cache Deformer for the moment
-                lVertexCacheDeformerCount = lVertexCacheDeformerCount > 0 ? 1 : 0;
-                
-                for (i=0; i<lVertexCacheDeformerCount; ++i )
-                {
-                    // Get the Point Cache object
-                    FbxVertexCacheDeformer* lDeformer = static_cast<FbxVertexCacheDeformer*>(lNode->GetGeometry()->GetDeformer(i, FbxDeformer::eVertexCache));
-                    if( !lDeformer ) continue;
-                    FbxCache* lCache = lDeformer->GetCache();
-                    if( !lCache ) continue;
-                    
-                    // Process the point cache data only if the constraint is active
-                    if (lDeformer->IsActive())
-                    {
-                        if (lCache->GetCacheFileFormat() == FbxCache::eMaxPointCacheV2)
-                        {
-                            // This code show how to convert from PC2 to MC point cache format
-                            // turn it on if you need it.
-#if 0
-                            if (!lCache->ConvertFromPC2ToMC(FbxCache::eMCOneFile,
-                                                            FbxTime::GetFrameRate(pScene->GetGlobalTimeSettings().GetTimeMode())))
-                            {
-                                // Conversion failed, retrieve the error here
-                                FbxString lTheErrorIs = lCache->GetError().GetLastErrorString();
-                            }
-#endif
-                        }
-                        else if (lCache->GetCacheFileFormat() == FbxCache::eMayaCache)
-                        {
-                            // This code show how to convert from MC to PC2 point cache format
-                            // turn it on if you need it.
-                            //#if 0
-                            if (!lCache->ConvertFromMCToPC2(FbxTime::GetFrameRate(pScene->GetGlobalSettings().GetTimeMode()), 0))
-                            {
-                                // Conversion failed, retrieve the error here
-                                FbxString lTheErrorIs = lCache->GetError().GetLastErrorString();
-                            }
-                            //#endif
-                        }
-                        
-                        
-                        // Now open the cache file to read from it
-                        if (!lCache->OpenFileForRead())
-                        {
-                            // Cannot open file
-                            FbxString lTheErrorIs = lCache->GetError().GetLastErrorString();
-                            
-                            // Set the deformer inactive so we don't play it back
-                            lDeformer->SetActive(false);
-                        }
-						else
-						{
-							// get the start and stop time of the cache
-							int lChannelCount = lCache->GetChannelCount();
-							
-							for (int iChannelNo=0; iChannelNo < lChannelCount; iChannelNo++)
-							{
-								FbxTime lChannel_Start;
-								FbxTime lChannel_Stop;
-                                
-								if(lCache->GetAnimationRange(iChannelNo, lChannel_Start, lChannel_Stop))
-								{
-									// get the smallest start time
-									if(lChannel_Start < pCache_Start) pCache_Start = lChannel_Start;
-                                    
-									// get the biggest stop time
-									if(lChannel_Stop  > pCache_Stop)  pCache_Stop  = lChannel_Stop;
-								}
-							}
-						}
-                    }
-                }
-            }
-        }
-    }
-    
-    // Load a texture file (TGA only now) into GPU and return the texture object name
-//    bool LoadTextureFromFile(const FbxString & pFilePath, GLuint & pTextureObject)
-//    {
-//        if (pFilePath.Right(3).Upper() == "TGA")
-//        {
-//            tga_image lTGAImage;
-//            
-//            if (tga_read(&lTGAImage, pFilePath.Buffer()) == TGA_NOERR)
-//            {
-//                // Make sure the image is left to right
-//                if (tga_is_right_to_left(&lTGAImage))
-//                    tga_flip_horiz(&lTGAImage);
-//                
-//                // Make sure the image is bottom to top
-//                if (tga_is_top_to_bottom(&lTGAImage))
-//                    tga_flip_vert(&lTGAImage);
-//                
-//                // Make the image BGR 24
-//                tga_convert_depth(&lTGAImage, 24);
-//                
-//                // Transfer the texture date into GPU
-//                glGenTextures(1, &pTextureObject);
-//                glBindTexture(GL_TEXTURE_2D, pTextureObject);
-//                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-//                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-//                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-//                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-//                glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-//                glTexImage2D(GL_TEXTURE_2D, 0, 3, lTGAImage.width, lTGAImage.height, 0, GL_BGR,
-//                             GL_UNSIGNED_BYTE, lTGAImage.image_data);
-//                glBindTexture(GL_TEXTURE_2D, 0);
-//                
-//                tga_free_buffers(&lTGAImage);
-//                
-//                return true;
-//            }
-//        }
-//        
-//        return false;
-//    }
-    
+{ 
     // Triangulate all NURBS, patch and mesh under this node recursively.
     void TriangulateRecursive(FbxNode* pNode)
     {
@@ -219,7 +45,7 @@ namespace
     
     // Bake node attributes and materials under this node recursively.
     // Currently only mesh, light and material.
-    void LoadCacheRecursive(FbxNode * pNode, FbxAnimLayer * pAnimLayer, bool pSupportVBO)
+    void LoadCacheRecursive(FbxNode * pNode, FbxAnimLayer * pAnimLayer)
     {
         // Bake material and hook as user data.
         const int lMaterialCount = pNode->GetMaterialCount();
@@ -243,7 +69,7 @@ namespace
             if (lNodeAttribute->GetAttributeType() == FbxNodeAttribute::eMesh)
             {
                 FbxMesh * lMesh = pNode->GetMesh();
-                if (pSupportVBO && lMesh && !lMesh->GetUserDataPtr())
+                if (lMesh && !lMesh->GetUserDataPtr())
                 {
                     FbxAutoPtr<VBOMesh> lMeshCache(new VBOMesh);
                     if (lMeshCache->Initialize(lMesh))
@@ -270,7 +96,7 @@ namespace
         const int lChildCount = pNode->GetChildCount();
         for (int lChildIndex = 0; lChildIndex < lChildCount; ++lChildIndex)
         {
-            LoadCacheRecursive(pNode->GetChild(lChildIndex), pAnimLayer, pSupportVBO);
+            LoadCacheRecursive(pNode->GetChild(lChildIndex), pAnimLayer);
         }
     }
     
@@ -325,62 +151,62 @@ namespace
     }
     
     // Bake node attributes and materials for this scene and load the textures.
-    void LoadCacheRecursive(FbxScene * pScene, FbxAnimLayer * pAnimLayer, const char * pFbxFileName, bool pSupportVBO)
+    void LoadCacheRecursive(FbxScene * pScene, FbxAnimLayer * pAnimLayer, const char * pFbxFileName)
     {
-        // Load the textures into GPU, only for file texture now
-        const int lTextureCount = pScene->GetTextureCount();
-        for (int lTextureIndex = 0; lTextureIndex < lTextureCount; ++lTextureIndex)
-        {
-            FbxTexture * lTexture = pScene->GetTexture(lTextureIndex);
-            FbxFileTexture * lFileTexture = FbxCast<FbxFileTexture>(lTexture);
-            if (lFileTexture && !lFileTexture->GetUserDataPtr())
-            {
-                // Try to load the texture from absolute path
-                const FbxString lFileName = lFileTexture->GetFileName();
-                
-                // Only TGA textures are supported now.
-                if (lFileName.Right(3).Upper() != "TGA")
-                {
-                    FBXSDK_printf("Only TGA textures are supported now: %s\n", lFileName.Buffer());
-                    continue;
-                }
-                
-                GLuint lTextureObject = 0;
-                bool lStatus = true;
-//                bool lStatus = LoadTextureFromFile(lFileName, lTextureObject);
-                
-                const FbxString lAbsFbxFileName = FbxPathUtils::Resolve(pFbxFileName);
-                const FbxString lAbsFolderName = FbxPathUtils::GetFolderName(lAbsFbxFileName);
-                if (!lStatus)
-                {
-                    // Load texture from relative file name (relative to FBX file)
-                    const FbxString lResolvedFileName = FbxPathUtils::Bind(lAbsFolderName, lFileTexture->GetRelativeFileName());
-//                    lStatus = LoadTextureFromFile(lResolvedFileName, lTextureObject);
-                }
-                
-                if (!lStatus)
-                {
-                    // Load texture from file name only (relative to FBX file)
-                    const FbxString lTextureFileName = FbxPathUtils::GetFileName(lFileName);
-                    const FbxString lResolvedFileName = FbxPathUtils::Bind(lAbsFolderName, lTextureFileName);
-//                    lStatus = LoadTextureFromFile(lResolvedFileName, lTextureObject);
-                }
-                
-                if (!lStatus)
-                {
-                    FBXSDK_printf("Failed to load texture file: %s\n", lFileName.Buffer());
-                    continue;
-                }
-                
-                if (lStatus)
-                {
-                    GLuint * lTextureName = new GLuint(lTextureObject);
-                    lFileTexture->SetUserDataPtr(lTextureName);
-                }
-            }
-        }
+//        // Load the textures into GPU, only for file texture now
+//        const int lTextureCount = pScene->GetTextureCount();
+//        for (int lTextureIndex = 0; lTextureIndex < lTextureCount; ++lTextureIndex)
+//        {
+//            FbxTexture * lTexture = pScene->GetTexture(lTextureIndex);
+//            FbxFileTexture * lFileTexture = FbxCast<FbxFileTexture>(lTexture);
+//            if (lFileTexture && !lFileTexture->GetUserDataPtr())
+//            {
+//                // Try to load the texture from absolute path
+//                const FbxString lFileName = lFileTexture->GetFileName();
+//                
+//                // Only TGA textures are supported now.
+//                if (lFileName.Right(3).Upper() != "TGA")
+//                {
+//                    FBXSDK_printf("Only TGA textures are supported now: %s\n", lFileName.Buffer());
+//                    continue;
+//                }
+//                
+//                GLuint lTextureObject = 0;
+//                bool lStatus = true;
+////                bool lStatus = LoadTextureFromFile(lFileName, lTextureObject);
+//                
+//                const FbxString lAbsFbxFileName = FbxPathUtils::Resolve(pFbxFileName);
+//                const FbxString lAbsFolderName = FbxPathUtils::GetFolderName(lAbsFbxFileName);
+//                if (!lStatus)
+//                {
+//                    // Load texture from relative file name (relative to FBX file)
+//                    const FbxString lResolvedFileName = FbxPathUtils::Bind(lAbsFolderName, lFileTexture->GetRelativeFileName());
+////                    lStatus = LoadTextureFromFile(lResolvedFileName, lTextureObject);
+//                }
+//                
+//                if (!lStatus)
+//                {
+//                    // Load texture from file name only (relative to FBX file)
+//                    const FbxString lTextureFileName = FbxPathUtils::GetFileName(lFileName);
+//                    const FbxString lResolvedFileName = FbxPathUtils::Bind(lAbsFolderName, lTextureFileName);
+////                    lStatus = LoadTextureFromFile(lResolvedFileName, lTextureObject);
+//                }
+//                
+//                if (!lStatus)
+//                {
+//                    FBXSDK_printf("Failed to load texture file: %s\n", lFileName.Buffer());
+//                    continue;
+//                }
+//                
+//                if (lStatus)
+//                {
+//                    GLuint * lTextureName = new GLuint(lTextureObject);
+//                    lFileTexture->SetUserDataPtr(lTextureName);
+//                }
+//            }
+//        }
         
-        LoadCacheRecursive(pScene->GetRootNode(), pAnimLayer, pSupportVBO);
+        LoadCacheRecursive(pScene->GetRootNode(), pAnimLayer);
     }
     
     // Unload the cache and release the memory fro this scene and release the textures in GPU
@@ -404,14 +230,13 @@ namespace
     }
 }
 
-SceneContext::SceneContext(const char * pFileName, bool pSupportVBO)
-: mFileName(pFileName), mSupportVBO(pSupportVBO),
-mSdkManager(NULL), mScene(NULL), mImporter(NULL), mCurrentAnimLayer(NULL), mSelectedNode(NULL),
-mPoseIndex(-1), mShadingMode(SHADING_MODE_SHADED)
+SceneContext::SceneContext(const char * pFileName)
+: mFileName(pFileName), mSdkManager(NULL), mScene(NULL), mImporter(NULL),
+mCurrentAnimLayer(NULL), mSelectedNode(NULL), mPoseIndex(-1)
 {   
 	// initialize cache start and stop time
-	mCache_Start = FBXSDK_TIME_INFINITE;
-	mCache_Stop  = FBXSDK_TIME_MINUS_INFINITE;
+//	mCache_Start = FBXSDK_TIME_INFINITE;
+//	mCache_Stop  = FBXSDK_TIME_MINUS_INFINITE;
     
     // Create the FBX SDK manager which is the object allocator for almost
     // all the classes in the SDK and create the scene.
@@ -448,9 +273,7 @@ mPoseIndex(-1), mShadingMode(SHADING_MODE_SHADED)
 }
 
 SceneContext::~SceneContext()
-{
-    FbxArrayDelete(mAnimStackNameArray);
-    
+{   
     // Unload the cache and free the memory
     if (mScene)
     {
@@ -487,24 +310,11 @@ bool SceneContext::LoadFile()
             FbxSystemUnit::cm.ConvertScene(mScene);
         }
         
-        // Get the list of all the animation stack.
-        mScene->FillAnimStackNameArray(mAnimStackNameArray);
-        
-        // Get the list of all the cameras in the scene.
-        FillCameraArray(mScene, mCameraArray);
-        
         // Convert mesh, NURBS and patch into triangle mesh
         TriangulateRecursive(mScene->GetRootNode());
         
         // Bake the scene for one frame
-        LoadCacheRecursive(mScene, mCurrentAnimLayer, mFileName, mSupportVBO);
-        
-        // Convert any .PC2 point cache data into the .MC format for
-        // vertex cache deformer playback.
-        PreparePointCacheData(mScene, mCache_Start, mCache_Stop);
-        
-        // Get the list of pose in the scene
-        FillPoseArray(mScene, mPoseArray);
+        LoadCacheRecursive(mScene, mCurrentAnimLayer, mFileName);
         
         // Initialize the frame period.
         mFrameTime.SetTime(0, 0, 0, 1, 0, mScene->GetGlobalSettings().GetTimeMode());

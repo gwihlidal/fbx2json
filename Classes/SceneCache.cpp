@@ -14,10 +14,6 @@
 namespace
 {
     const float ANGLE_TO_RADIAN = 3.1415926f / 180.f;
-    const GLfloat BLACK_COLOR[] = {0.0f, 0.0f, 0.0f, 1.0f};
-    const GLfloat GREEN_COLOR[] = {0.0f, 1.0f, 0.0f, 1.0f};
-    const GLfloat WHITE_COLOR[] = {1.0f, 1.0f, 1.0f, 1.0f};
-    const GLfloat WIREFRAME_COLOR[] = {0.5f, 0.5f, 0.5f, 1.0f};
     
     const int TRIANGLE_VERTEX_COUNT = 3;
     
@@ -27,12 +23,6 @@ namespace
     const int NORMAL_STRIDE = 3;
     // Two floats for every UV.
     const int UV_STRIDE = 2;
-    
-    const GLfloat DEFAULT_LIGHT_POSITION[] = {0.0f, 0.0f, 0.0f, 1.0f};
-    const GLfloat DEFAULT_DIRECTION_LIGHT_POSITION[] = {0.0f, 0.0f, 1.0f, 0.0f};
-    const GLfloat DEFAULT_SPOT_LIGHT_DIRECTION[] = {0.0f, 0.0f, -1.0f};
-    const GLfloat DEFAULT_LIGHT_COLOR[] = {1.0f, 1.0f, 1.0f, 1.0f};
-    const GLfloat DEFAULT_LIGHT_SPOT_CUTOFF = 180.0f;
     
     // Get specific property value and connected texture if any.
     // Value = Property value * Factor property value (if no factor property, multiply by 1).
@@ -330,25 +320,25 @@ bool VBOMesh::Initialize(const FbxMesh *pMesh)
     // Save vertex attributes into GPU
 //    glBindBuffer(GL_ARRAY_BUFFER, mVBONames[VERTEX_VBO]);
 //    glBufferData(GL_ARRAY_BUFFER, lPolygonVertexCount * VERTEX_STRIDE * sizeof(float), lVertices, GL_STATIC_DRAW);
-    delete [] lVertices;
+//    delete [] lVertices;
     
     if (mHasNormal)
     {
 //        glBindBuffer(GL_ARRAY_BUFFER, mVBONames[NORMAL_VBO]);
 //        glBufferData(GL_ARRAY_BUFFER, lPolygonVertexCount * NORMAL_STRIDE * sizeof(float), lNormals, GL_STATIC_DRAW);
-        delete [] lNormals;
+//        delete [] lNormals;
     }
     
     if (mHasUV)
     {
 //        glBindBuffer(GL_ARRAY_BUFFER, mVBONames[UV_VBO]);
 //        glBufferData(GL_ARRAY_BUFFER, lPolygonVertexCount * UV_STRIDE * sizeof(float), lUVs, GL_STATIC_DRAW);
-        delete [] lUVs;
+//        delete [] lUVs;
     }
     
 //    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mVBONames[INDEX_VBO]);
 //    glBufferData(GL_ELEMENT_ARRAY_BUFFER, lPolygonCount * TRIANGLE_VERTEX_COUNT * sizeof(GLuint), lIndices, GL_STATIC_DRAW);
-    delete [] lIndices;
+//    delete [] lIndices;
     
     return true;
 }

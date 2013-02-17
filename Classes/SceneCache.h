@@ -30,13 +30,6 @@ public:
     // Update vertex positions for deformed meshes.
     void UpdateVertexPosition(const FbxMesh * pMesh, const FbxVector4 * pVertices) const;
     
-//    // Bind buffers, set vertex arrays, turn on lighting and texture.
-//    void BeginDraw(ShadingMode pShadingMode) const;
-//    // Draw all the faces with specific material with given shading mode.
-//    void Draw(int pMaterialIndex, ShadingMode pShadingMode) const;
-//    // Unbind buffers, reset vertex arrays, turn off lighting and texture.
-//    void EndDraw() const;
-    
     // Get the count of material groups
     int GetSubMeshCount() const { return mSubMeshes.GetCount(); }
     
