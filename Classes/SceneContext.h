@@ -16,6 +16,7 @@
 #include <glew.h>
 
 #include "GlFunctions.h"
+#include "SceneCache.h"
 
 class SceneContext
 {
@@ -29,6 +30,8 @@ public:
     // The time period for one frame.
     const FbxTime GetFrameTime() const { return mFrameTime; }
     
+    std::vector<VBOMesh *> * mMeshes;
+    
 private:
     const char * mFileName;
     
@@ -41,6 +44,14 @@ private:
     int mPoseIndex;
     
     mutable FbxTime mFrameTime, mStart, mStop, mCurrentTime;
+    
+//    struct Node
+//    {
+//        VBOMesh mesh;
+//        MaterialCache material;
+//    };
+//    
+//    std::vector<Node> mNodes;
     
 };
 

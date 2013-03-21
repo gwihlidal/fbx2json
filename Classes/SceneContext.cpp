@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 using namespace std;
 
 #include "SceneContext.h"
@@ -37,6 +38,7 @@ namespace
         }
         
         const int lChildCount = pNode->GetChildCount();
+        
         for (int lChildIndex = 0; lChildIndex < lChildCount; ++lChildIndex)
         {
             TriangulateRecursive(pNode->GetChild(lChildIndex));
@@ -44,17 +46,20 @@ namespace
     }
     
     // Bake node attributes and materials under this node recursively.
-    // Currently only mesh, light and material.
-    void LoadCacheRecursive(FbxNode * pNode, FbxAnimLayer * pAnimLayer)
-    {
+    // Currently only mesh and material.
+    void LoadCacheRecursive(std::vector<VBOMesh *> * pMeshes, FbxNode * pNode, FbxAnimLayer * pAnimLayer)
+    {        
         // Bake material and hook as user data.
         const int lMaterialCount = pNode->GetMaterialCount();
+        
         for (int lMaterialIndex = 0; lMaterialIndex < lMaterialCount; ++lMaterialIndex)
         {
             FbxSurfaceMaterial * lMaterial = pNode->GetMaterial(lMaterialIndex);
+            
             if (lMaterial && !lMaterial->GetUserDataPtr())
-            {
+            {                
                 FbxAutoPtr<MaterialCache> lMaterialCache(new MaterialCache);
+                
                 if (lMaterialCache->Initialize(lMaterial))
                 {
                     lMaterial->SetUserDataPtr(lMaterialCache.Release());
@@ -62,41 +67,31 @@ namespace
             }
         }
         
+        // Bake mesh as VBO(vertex buffer object)
         FbxNodeAttribute* lNodeAttribute = pNode->GetNodeAttribute();
         if (lNodeAttribute)
         {
-            // Bake mesh as VBO(vertex buffer object) into GPU.
             if (lNodeAttribute->GetAttributeType() == FbxNodeAttribute::eMesh)
             {
                 FbxMesh * lMesh = pNode->GetMesh();
+                
                 if (lMesh && !lMesh->GetUserDataPtr())
                 {
-                    FbxAutoPtr<VBOMesh> lMeshCache(new VBOMesh);
+                    VBOMesh * lMeshCache = new VBOMesh;
+                    
                     if (lMeshCache->Initialize(lMesh))
                     {
-                        lMesh->SetUserDataPtr(lMeshCache.Release());
-                    }
-                }
-            }
-            // Bake light properties.
-            else if (lNodeAttribute->GetAttributeType() == FbxNodeAttribute::eLight)
-            {
-                FbxLight * lLight = pNode->GetLight();
-                if (lLight && !lLight->GetUserDataPtr())
-                {
-                    FbxAutoPtr<LightCache> lLightCache(new LightCache);
-                    if (lLightCache->Initialize(lLight, pAnimLayer))
-                    {
-                        lLight->SetUserDataPtr(lLightCache.Release());
+                        pMeshes->push_back(lMeshCache);
                     }
                 }
             }
         }
         
         const int lChildCount = pNode->GetChildCount();
+        
         for (int lChildIndex = 0; lChildIndex < lChildCount; ++lChildIndex)
-        {
-            LoadCacheRecursive(pNode->GetChild(lChildIndex), pAnimLayer);
+        {            
+            LoadCacheRecursive(pMeshes, pNode->GetChild(lChildIndex), pAnimLayer);
         }
     }
     
@@ -105,9 +100,11 @@ namespace
     {
         // Unload the material cache
         const int lMaterialCount = pNode->GetMaterialCount();
+        
         for (int lMaterialIndex = 0; lMaterialIndex < lMaterialCount; ++lMaterialIndex)
         {
             FbxSurfaceMaterial * lMaterial = pNode->GetMaterial(lMaterialIndex);
+            
             if (lMaterial && lMaterial->GetUserDataPtr())
             {
                 MaterialCache * lMaterialCache = static_cast<MaterialCache *>(lMaterial->GetUserDataPtr());
@@ -123,6 +120,7 @@ namespace
             if (lNodeAttribute->GetAttributeType() == FbxNodeAttribute::eMesh)
             {
                 FbxMesh * lMesh = pNode->GetMesh();
+                
                 if (lMesh && lMesh->GetUserDataPtr())
                 {
                     VBOMesh * lMeshCache = static_cast<VBOMesh *>(lMesh->GetUserDataPtr());
@@ -130,20 +128,10 @@ namespace
                     delete lMeshCache;
                 }
             }
-            // Unload the light cache
-            else if (lNodeAttribute->GetAttributeType() == FbxNodeAttribute::eLight)
-            {
-                FbxLight * lLight = pNode->GetLight();
-                if (lLight && lLight->GetUserDataPtr())
-                {
-                    LightCache * lLightCache = static_cast<LightCache *>(lLight->GetUserDataPtr());
-                    lLight->SetUserDataPtr(NULL);
-                    delete lLightCache;
-                }
-            }
         }
         
         const int lChildCount = pNode->GetChildCount();
+        
         for (int lChildIndex = 0; lChildIndex < lChildCount; ++lChildIndex)
         {
             UnloadCacheRecursive(pNode->GetChild(lChildIndex));
@@ -151,88 +139,23 @@ namespace
     }
     
     // Bake node attributes and materials for this scene and load the textures.
-    void LoadCacheRecursive(FbxScene * pScene, FbxAnimLayer * pAnimLayer, const char * pFbxFileName)
-    {
-//        // Load the textures into GPU, only for file texture now
-//        const int lTextureCount = pScene->GetTextureCount();
-//        for (int lTextureIndex = 0; lTextureIndex < lTextureCount; ++lTextureIndex)
-//        {
-//            FbxTexture * lTexture = pScene->GetTexture(lTextureIndex);
-//            FbxFileTexture * lFileTexture = FbxCast<FbxFileTexture>(lTexture);
-//            if (lFileTexture && !lFileTexture->GetUserDataPtr())
-//            {
-//                // Try to load the texture from absolute path
-//                const FbxString lFileName = lFileTexture->GetFileName();
-//                
-//                // Only TGA textures are supported now.
-//                if (lFileName.Right(3).Upper() != "TGA")
-//                {
-//                    FBXSDK_printf("Only TGA textures are supported now: %s\n", lFileName.Buffer());
-//                    continue;
-//                }
-//                
-//                GLuint lTextureObject = 0;
-//                bool lStatus = true;
-////                bool lStatus = LoadTextureFromFile(lFileName, lTextureObject);
-//                
-//                const FbxString lAbsFbxFileName = FbxPathUtils::Resolve(pFbxFileName);
-//                const FbxString lAbsFolderName = FbxPathUtils::GetFolderName(lAbsFbxFileName);
-//                if (!lStatus)
-//                {
-//                    // Load texture from relative file name (relative to FBX file)
-//                    const FbxString lResolvedFileName = FbxPathUtils::Bind(lAbsFolderName, lFileTexture->GetRelativeFileName());
-////                    lStatus = LoadTextureFromFile(lResolvedFileName, lTextureObject);
-//                }
-//                
-//                if (!lStatus)
-//                {
-//                    // Load texture from file name only (relative to FBX file)
-//                    const FbxString lTextureFileName = FbxPathUtils::GetFileName(lFileName);
-//                    const FbxString lResolvedFileName = FbxPathUtils::Bind(lAbsFolderName, lTextureFileName);
-////                    lStatus = LoadTextureFromFile(lResolvedFileName, lTextureObject);
-//                }
-//                
-//                if (!lStatus)
-//                {
-//                    FBXSDK_printf("Failed to load texture file: %s\n", lFileName.Buffer());
-//                    continue;
-//                }
-//                
-//                if (lStatus)
-//                {
-//                    GLuint * lTextureName = new GLuint(lTextureObject);
-//                    lFileTexture->SetUserDataPtr(lTextureName);
-//                }
-//            }
-//        }
-        
-        LoadCacheRecursive(pScene->GetRootNode(), pAnimLayer);
+    void LoadCacheRecursive(std::vector<VBOMesh *> * pMeshes, FbxScene * pScene, FbxAnimLayer * pAnimLayer, const char * pFbxFileName)
+    {        
+        // TODO: Capture scene texture filenames, parse to websafe format
+
+        LoadCacheRecursive(pMeshes, pScene->GetRootNode(), pAnimLayer);
     }
     
-    // Unload the cache and release the memory fro this scene and release the textures in GPU
+    // Unload the cache and release the memory from this scene
     void UnloadCacheRecursive(FbxScene * pScene)
-    {
-        const int lTextureCount = pScene->GetTextureCount();
-        for (int lTextureIndex = 0; lTextureIndex < lTextureCount; ++lTextureIndex)
-        {
-            FbxTexture * lTexture = pScene->GetTexture(lTextureIndex);
-            FbxFileTexture * lFileTexture = FbxCast<FbxFileTexture>(lTexture);
-            if (lFileTexture && lFileTexture->GetUserDataPtr())
-            {
-                GLuint * lTextureName = static_cast<GLuint *>(lFileTexture->GetUserDataPtr());
-                lFileTexture->SetUserDataPtr(NULL);
-//                glDeleteTextures(1, lTextureName);
-                delete lTextureName;
-            }
-        }
-        
+    {        
         UnloadCacheRecursive(pScene->GetRootNode());
     }
 }
 
 SceneContext::SceneContext(const char * pFileName)
 : mFileName(pFileName), mSdkManager(NULL), mScene(NULL), mImporter(NULL),
-mCurrentAnimLayer(NULL), mSelectedNode(NULL), mPoseIndex(-1)
+mCurrentAnimLayer(NULL), mSelectedNode(NULL), mMeshes(NULL), mPoseIndex(-1)
 {   
 	// initialize cache start and stop time
 //	mCache_Start = FBXSDK_TIME_INFINITE;
@@ -257,6 +180,8 @@ mCurrentAnimLayer(NULL), mSelectedNode(NULL), mPoseIndex(-1)
         if(mImporter->Initialize(mFileName, lFileFormat) == true)
         {
             std::cout << "Importing file " << mFileName << ". Please wait." << std::endl;
+            
+            mMeshes = new std::vector<VBOMesh *>;
 
             LoadFile();
         }
@@ -314,7 +239,7 @@ bool SceneContext::LoadFile()
         TriangulateRecursive(mScene->GetRootNode());
         
         // Bake the scene for one frame
-        LoadCacheRecursive(mScene, mCurrentAnimLayer, mFileName);
+        LoadCacheRecursive(mMeshes, mScene, mCurrentAnimLayer, mFileName);
         
         // Initialize the frame period.
         mFrameTime.SetTime(0, 0, 0, 1, 0, mScene->GetGlobalSettings().GetTimeMode());

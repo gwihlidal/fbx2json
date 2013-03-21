@@ -17,6 +17,9 @@
 
 #include "GlFunctions.h"
 
+#include <vector>
+using namespace std;
+
 // Save mesh vertices, normals, UVs and indices in GPU with OpenGL Vertex Buffer Objects
 class VBOMesh
 {
@@ -24,14 +27,16 @@ public:
     VBOMesh();
     ~VBOMesh();
     
-    // Save up data into GPU buffers.
     bool Initialize(const FbxMesh * pMesh);
     
-    // Update vertex positions for deformed meshes.
-    void UpdateVertexPosition(const FbxMesh * pMesh, const FbxVector4 * pVertices) const;
+    std::vector<float> * mVertices;
+    std::vector<GLuint> * mIndices;
+    std::vector<float> * mNormals;
+    std::vector<float> * mUVs;
     
-    // Get the count of material groups
-    int GetSubMeshCount() const { return mSubMeshes.GetCount(); }
+    bool mHasNormal;
+    bool mHasUV;
+    bool mAllByControlPoint; // Save data in VBO by control point or by polygon vertex.
     
 private:
     enum
@@ -54,9 +59,6 @@ private:
     
     GLuint mVBONames[VBO_COUNT];
     FbxArray<SubMesh*> mSubMeshes;
-    bool mHasNormal;
-    bool mHasUV;
-    bool mAllByControlPoint; // Save data in VBO by control point or by polygon vertex.
 };
 
 // Cache for FBX material
@@ -67,14 +69,6 @@ public:
     ~MaterialCache();
     
     bool Initialize(const FbxSurfaceMaterial * pMaterial);
-    
-    // Set material colors and binding diffuse texture if exists.
-    void SetCurrentMaterial() const;
-    
-    bool HasTexture() const { return mDiffuse.mTextureName != 0; }
-    
-    // Set default green color.
-    static void SetDefaultMaterial();
     
 private:
     struct ColorChannel
@@ -116,34 +110,6 @@ struct PropertyChannel
     
     FbxAnimCurve * mAnimCurve;
     GLfloat mValue;
-};
-
-// Cache for FBX lights
-class LightCache
-{
-public:
-    LightCache();
-    ~LightCache();
-    
-    // Set ambient light. Turn on light0 and set its attributes to default (white directional light in Z axis).
-    // If the scene contains at least one light, the attributes of light0 will be overridden.
-//    static void IntializeEnvironment(const FbxColor & pAmbientLight);
-    
-    bool Initialize(const FbxLight * pLight, FbxAnimLayer * pAnimLayer);
-    
-    // Draw a geometry (sphere for point and directional light, cone for spot light).
-    // And set light attributes.
-//    void SetLight(const FbxTime & pTime) const;
-    
-private:
-    static int sLightCount;         // How many lights in this scene.
-    
-    GLuint mLightIndex;
-    FbxLight::EType mType;
-    PropertyChannel mColorRed;
-    PropertyChannel mColorGreen;
-    PropertyChannel mColorBlue;
-    PropertyChannel mConeAngle;
 };
 
 #endif /* defined(__fbx2json__SceneCache__) */
