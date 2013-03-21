@@ -2,7 +2,7 @@
 
 A command-line utility to convert [Autodesk FBX](http://www.autodesk.com/developfbx) files to a custom JSON format, suitable for use in OpenGL/WebGL projects.
 
-## Requirements
+## Dependencies
 
 * [Autodesk C++ FBX SDK 2013.3](http://usa.autodesk.com/adsk/servlet/pc/item?siteID=123112&id=10775847)
 
