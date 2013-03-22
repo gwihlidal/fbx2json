@@ -1,101 +1,60 @@
-//
-//  main.cpp
-//  fbx2json
-//
-//  Created by Cameron Yule on 09/02/2013.
-//  Copyright (c) 2013 Cameron Yule. All rights reserved.
-//
+/*
+ * Copyright 2013 Cameron Yule.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
 
 #include <iostream>
 #include <string>
-using namespace std;
 
-#define FBXSDK_NEW_API true
-#include <fbxsdk.h>
-
-#include <JsonBox.h>
-
-#include "SceneContext.h"
-
-void ExitFunction();
-
-SceneContext * gSceneContext;
+#include "FBXImporter.h"
 
 void usage(std::string prog)
 {
-    std::cerr << prog << ": missing arguments" << std::endl;
-    fprintf(stderr, "\nUSAGE: %s [FBX inputFile] [JSON outputFile] \n", prog.c_str());
-}
-
-void createJSON(std::string outputFile, std::vector<VBOMesh *> * pMeshes)
-{
-    JsonBox::Array meshes;
-
-    for(std::vector<VBOMesh *>::iterator mesh = pMeshes->begin(); mesh != pMeshes->end(); ++mesh)
-    {
-        VBOMesh* lMesh = *mesh;
-        
-        JsonBox::Object meshObject;
-        
-        JsonBox::Array vertices;
-        JsonBox::Array normals;
-        JsonBox::Array uvs;
-        JsonBox::Array indices;
-        
-        for(std::vector<float>::iterator vertex = lMesh->mVertices->begin(); vertex != lMesh->mVertices->end(); ++vertex)
-        {
-            vertices.push_back(*vertex);
-        }
-        
-        for(std::vector<float>::iterator normal = lMesh->mNormals->begin(); normal != lMesh->mNormals->end(); ++normal)
-        {
-            normals.push_back(*normal);
-        }
-        
-        for(std::vector<float>::iterator uv = lMesh->mUVs->begin(); uv != lMesh->mUVs->end(); ++uv)
-        {
-            uvs.push_back(*uv);
-        }
-        
-        for(std::vector<GLuint>::iterator index = lMesh->mIndices->begin(); index != lMesh->mIndices->end(); ++index)
-        {
-            indices.push_back(int(*index));
-        }
-        
-        meshObject["vertices"] = vertices;
-        meshObject["normals"] = normals;
-        meshObject["uvs"] = uvs;
-        meshObject["indices"] = indices;
-        
-        meshes.push_back(meshObject);
-    }
-    
-    JsonBox::Value v(meshes);
-    v.writeToFile(outputFile);
+  std::cerr << prog << ": missing arguments" << std::endl << std::endl;
+  std::cerr << "USAGE: " << prog;
+  std::cerr << "[FBX inputFile] [JSON outputFile]" << std::endl;
 }
 
 int main(int argc, char** argv)
 {
-    if (argc < 3) {
-        usage(argv[0]);
-        return EXIT_FAILURE;
-    }
-    
-    // Set exit function to destroy objects created by the FBX SDK.
-    atexit(ExitFunction);
+  if (argc < 3)
+  {
+    usage(argv[0]);
 
-    std::string inputFile = argv[1];
-    std::string outputFile = argv[2];
-    
-    gSceneContext = new SceneContext(inputFile.c_str());
-    
-    createJSON(outputFile, gSceneContext->mMeshes);
+    return EXIT_FAILURE;
+  }
 
-    return EXIT_SUCCESS;
-}
+  std::string input = argv[1];
+  std::string output = argv[2];
 
-// Function to destroy objects created by the FBX SDK.
-void ExitFunction()
-{
-    delete gSceneContext;
+  // Initialise the FBX SDK and import our FBX file
+  FBXImporter importer = FBXImporter();
+  importer.Import(input);
+
+  // Bake component parts of FBX into raw data for export
+  FBXSceneParser parser = FBXSceneParser();
+  parser.Parse(importer.mScene);
+
+  // Output JSON-formatted raw data
+  FBXExporter exporter = FBXExporter();
+  exporter.Export(parser.data);
+
+  return EXIT_SUCCESS;
 }
