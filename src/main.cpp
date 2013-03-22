@@ -24,6 +24,8 @@
 #include <string>
 
 #include "FBXImporter.h"
+#include "FBXParser.h"
+#include "FBXExporter.h"
 
 void usage(std::string prog)
 {
@@ -49,12 +51,12 @@ int main(int argc, char** argv)
   importer.Import(input);
 
   // Bake component parts of FBX into raw data for export
-  FBXSceneParser parser = FBXSceneParser();
-  parser.Parse(importer.mScene);
+  FBXParser parser = FBXParser();
+  parser.Parse(importer.GetScene());
 
   // Output JSON-formatted raw data
   FBXExporter exporter = FBXExporter();
-  exporter.Export(parser.data);
+  exporter.Export();
 
   return EXIT_SUCCESS;
 }
