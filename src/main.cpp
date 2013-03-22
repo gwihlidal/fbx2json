@@ -27,6 +27,11 @@
 #include "FBXParser.h"
 #include "FBXExporter.h"
 
+#define FBX2JSON_MAJOR "0"
+#define FBX2JSON_MINOR "1"
+#define FBX2JSON_PATCH "0"
+
+
 void usage(std::string prog)
 {
   std::cerr << prog << ": missing arguments" << std::endl << std::endl;
@@ -34,29 +39,67 @@ void usage(std::string prog)
   std::cerr << "[FBX inputFile] [JSON outputFile]" << std::endl;
 }
 
-int main(int argc, char** argv)
+void version()
 {
-  if (argc < 3)
-  {
-    usage(argv[0]);
+  std::cout << FBX2JSON_MAJOR << ".";
+  std::cout << FBX2JSON_MINOR << ".";
+  std::cout << FBX2JSON_PATCH;
+  std::cout << std::endl;
+}
 
-    return EXIT_FAILURE;
+void parseArguments(int argc, char** argv)
+{
+  int index;
+  int c;
+
+  while ((c = getopt(argc, argv, "v")) != -1)
+  {
+    switch (c)
+    {
+      case 'v':
+        version();
+        break;
+    }
   }
 
-  std::string input = argv[1];
-  std::string output = argv[2];
+  for (index = optind; index < argc; index++)
+  {
+    printf ("Non-option argument %s\n", argv[index]);
+  }
+}
 
-  // Initialise the FBX SDK and import our FBX file
-  FBXImporter importer = FBXImporter();
-  importer.Import(input);
+int main(int argc, char** argv)
+{
+  parseArguments(argc, argv);
 
-  // Bake component parts of FBX into raw data for export
-  FBXParser parser = FBXParser();
-  parser.Parse(importer.GetScene());
+  // if (argv[1] == " -v")
+  // {
+  //   version(argv[1]);
+  //   
+  //   return EXIT_SUCCESS;
+  // }
 
-  // Output JSON-formatted raw data
-  FBXExporter exporter = FBXExporter();
-  exporter.Export();
+  // if (argc < 3)
+  // {
+  //   usage(argv[0]);
+  // 
+  //   return EXIT_FAILURE;
+  // }
+
+  // std::string input = argv[1];
+  // std::string output = argv[2];
+  // 
+  // // Initialise the FBX SDK and import our FBX file
+  // FBXImporter importer = FBXImporter();
+  // importer.Import(input);
+  // 
+  // // Bake component parts of FBX into raw data for export
+  // FBXParser parser = FBXParser();
+  // parser.Parse(importer.GetScene());
+  // 
+  // // Output JSON-formatted raw data
+  // FBXExporter exporter = FBXExporter();
+  // exporter.Export();
 
   return EXIT_SUCCESS;
 }
