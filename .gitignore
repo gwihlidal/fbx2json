@@ -1,32 +1,4 @@
-# Mac OS X
 .DS_Store
-Makefile
-CMakeCache.txt
-CMakeFiles
 *.swp
 *~.nib
-
-build/
-adhoc/
-
-.xcodeproj/ !*.xcodeproj/project.pbxproj
-
-*.mode1v3
-*.mode2v3
-
-build/
-xcuserdata
-
-# Compiled Object files
-*.slo
-*.lo
-*.o
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
+bin
