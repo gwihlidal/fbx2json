@@ -1,5 +1,8 @@
 # Mac OS X
 .DS_Store
+Makefile
+CMakeCache.txt
+CMakeFiles
 *.swp
 *~.nib
 
