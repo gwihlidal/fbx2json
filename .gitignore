@@ -1,4 +1,12 @@
+# OS X ignores
 .DS_Store
 *.swp
 *~.nib
-bin
+
+# CMake ignores
+CMakeCache.txt
+CMakeFiles
+Makefile
+cmake_install.cmake
+install_manifest.txt
+build
