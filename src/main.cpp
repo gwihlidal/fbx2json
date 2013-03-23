@@ -46,56 +46,47 @@ void version()
   std::cout << std::endl;
 }
 
-void parse_arguments(int argc, char** argv)
+bool parse_arguments(int argc, char** argv)
 {
-  int index;
   int c;
 
   while((c = getopt(argc, argv, "v")) != -1) {
     switch(c) {
       case 'v':
         version();
+        return false;
         break;
     }
   }
 
-  for(index = optind; index < argc; index++) {
-    printf("Non-option argument %s\n", argv[index]);
+  if (argc < 3) {
+    usage(argv[0]);
+    return false;
   }
+  
+  return true;
 }
 
 int main(int argc, char** argv)
 {
-  parse_arguments(argc, argv);
+  if (parse_arguments(argc, argv)) {
+    std::string input = argv[1];
+    std::string output = argv[2];
 
-  // if (argv[1] == " -v")
-  // {
-  //   version(argv[1]);
-  //
-  //   return EXIT_SUCCESS;
-  // }
+    // Initialise the FBX SDK and import our FBX file
+    Fbx2Json::Importer importer = Fbx2Json::Importer();
+    importer.import(input);
 
-  // if (argc < 3)
-  // {
-  //   usage(argv[0]);
-  //
-  //   return EXIT_FAILURE;
-  // }
+    // Bake component parts of FBX into raw data for export
+    Fbx2Json::FbxParser parser = Fbx2Json::FbxParser();
+    // parser.parse(importer.GetScene());
 
-  // std::string input = argv[1];
-  // std::string output = argv[2];
-  //
-  // // Initialise the FBX SDK and import our FBX file
-  // Importer importer = Importer();
-  // importer.import(input);
-  //
-  // // Bake component parts of FBX into raw data for export
-  // FbxParser parser = FbxParser();
-  // parser.parse(importer.GetScene());
-  //
-  // // Output JSON-formatted raw data
-  // FbxExporter exporter = FbxExporter();
-  // exporter.export();
+    // Output JSON-formatted raw data
+    Fbx2Json::FbxExporter exporter = Fbx2Json::FbxExporter();
+    // exporter.export();
 
-  return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
+  }
+
+  return EXIT_FAILURE;
 }
