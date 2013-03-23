@@ -20,8 +20,8 @@
  * IN THE SOFTWARE.
  */
 
-#ifndef fbx2json_Importer_H
-#define fbx2json_Importer_H
+#ifndef FBX2JSON_IMPORTER_H
+#define FBX2JSON_IMPORTER_H
 
 #include <iostream>
 #include <string>
@@ -35,7 +35,9 @@ class Importer
   public:
     Importer();
     void import(const std::string input);
-    FbxScene * get_scene() { return mScene; };
+    FbxScene * get_scene() {
+      return mScene;
+    };
     ~Importer();
 
   private:

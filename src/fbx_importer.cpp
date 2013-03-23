@@ -34,8 +34,7 @@ void Importer::initialize_sdk_objects(FbxManager*& pManager, FbxScene*& pScene)
 {
   pManager = FbxManager::Create();
 
-  if (!pManager)
-  {
+  if(!pManager) {
     std::cerr << "Error: Unable to create FBX Manager!";
     std::cerr <<  std::endl;
     exit(1);
@@ -46,8 +45,7 @@ void Importer::initialize_sdk_objects(FbxManager*& pManager, FbxScene*& pScene)
 
   pScene = FbxScene::Create(pManager, "My Scene");
 
-  if (!pScene)
-  {
+  if(!pScene) {
     std::cerr << "Error: Unable to create FBX scene.";
     std::cerr << std::endl;
     exit(1);
@@ -58,26 +56,21 @@ void Importer::import(const std::string input)
 {
   const char* lFileName = input.c_str();
 
-  if (mSdkManager)
-  {
+  if(mSdkManager) {
     int lFileFormat = -1;
 
     mImporter = FbxImporter::Create(mSdkManager,"");
 
-    if (!mSdkManager->GetIOPluginRegistry()->DetectReaderFileFormat(lFileName, lFileFormat))
-    {
-    // Unrecognizable file format. Try to fall back to Fbximporter::eFBX_BINARY
+    if(!mSdkManager->GetIOPluginRegistry()->DetectReaderFileFormat(lFileName, lFileFormat)) {
+      // Unrecognizable file format. Try to fall back to Fbximporter::eFBX_BINARY
       lFileFormat = mSdkManager->GetIOPluginRegistry()->FindReaderIDByDescription("FBX binary (*.fbx)");
     }
 
-    if(mImporter->Initialize(lFileName, lFileFormat) == true)
-    {
+    if(mImporter->Initialize(lFileName, lFileFormat) == true) {
       std::cout << "Importing file: " << input << std::endl;
 
       import_scene();
-    }
-    else
-    {
+    } else {
       std::cerr << "Unable to load file: " << input << std::endl;
       std::cerr << "Error reported: " << mImporter->GetLastErrorString() << std::endl;
     }
@@ -86,8 +79,7 @@ void Importer::import(const std::string input)
 
 void Importer::import_scene()
 {
-  if (mImporter->Import(mScene) == true)
-  {
+  if(mImporter->Import(mScene) == true) {
     normalise_scene();
   }
 
@@ -100,21 +92,19 @@ void Importer::normalise_scene()
   // Convert Axis System to what is used in this example, if needed
   FbxAxisSystem SceneAxisSystem = mScene->GetGlobalSettings().GetAxisSystem();
   FbxAxisSystem OurAxisSystem(FbxAxisSystem::eYAxis, FbxAxisSystem::eParityOdd, FbxAxisSystem::eRightHanded);
-  
-  if( SceneAxisSystem != OurAxisSystem )
-  {
-      OurAxisSystem.ConvertScene(mScene);
+
+  if(SceneAxisSystem != OurAxisSystem) {
+    OurAxisSystem.ConvertScene(mScene);
   }
-  
+
   // Convert Unit System to what is used in this example, if needed
   FbxSystemUnit SceneSystemUnit = mScene->GetGlobalSettings().GetSystemUnit();
-  
-  if( SceneSystemUnit.GetScaleFactor() != 1.0 )
-  {
-      //The unit in this example is centimeter.
-      FbxSystemUnit::cm.ConvertScene(mScene);
+
+  if(SceneSystemUnit.GetScaleFactor() != 1.0) {
+    //The unit in this example is centimeter.
+    FbxSystemUnit::cm.ConvertScene(mScene);
   }
-  
+
   // Convert mesh, NURBS and patch into triangle mesh
   triangulate_recursive(mScene->GetRootNode());
 }
@@ -123,13 +113,11 @@ void Importer::triangulate_recursive(FbxNode* pNode)
 {
   FbxNodeAttribute* lNodeAttribute = pNode->GetNodeAttribute();
 
-  if (lNodeAttribute)
-  {
-    if (lNodeAttribute->GetAttributeType() == FbxNodeAttribute::eMesh ||
-      lNodeAttribute->GetAttributeType() == FbxNodeAttribute::eNurbs ||
+  if(lNodeAttribute) {
+    if(lNodeAttribute->GetAttributeType() == FbxNodeAttribute::eMesh ||
+        lNodeAttribute->GetAttributeType() == FbxNodeAttribute::eNurbs ||
         lNodeAttribute->GetAttributeType() == FbxNodeAttribute::eNurbsSurface ||
-          lNodeAttribute->GetAttributeType() == FbxNodeAttribute::ePatch)
-    {
+        lNodeAttribute->GetAttributeType() == FbxNodeAttribute::ePatch) {
       FbxGeometryConverter lConverter(pNode->GetFbxManager());
       lConverter.TriangulateInPlace(pNode);
     }
@@ -137,8 +125,7 @@ void Importer::triangulate_recursive(FbxNode* pNode)
 
   const int lChildCount = pNode->GetChildCount();
 
-  for (int lChildIndex = 0; lChildIndex < lChildCount; ++lChildIndex)
-  {
+  for(int lChildIndex = 0; lChildIndex < lChildCount; ++lChildIndex) {
     triangulate_recursive(pNode->GetChild(lChildIndex));
   }
 }
@@ -150,9 +137,8 @@ Importer::~Importer()
 
 void Importer::destroy_sdk_objects(FbxManager* pManager, bool pExitStatus)
 {
-  if (pManager)
-  {
-     pManager->Destroy();
+  if(pManager) {
+    pManager->Destroy();
   }
 }
 

@@ -31,37 +31,41 @@
 #define FBX2JSON_MINOR "1"
 #define FBX2JSON_PATCH "0"
 
-void usage(std::string prog) {
+void usage(std::string prog)
+{
   std::cerr << prog << ": missing arguments" << std::endl << std::endl;
   std::cerr << "USAGE: " << prog;
   std::cerr << "[FBX inputFile] [JSON outputFile]" << std::endl;
 }
 
-void version() {
+void version()
+{
   std::cout << FBX2JSON_MAJOR << ".";
   std::cout << FBX2JSON_MINOR << ".";
   std::cout << FBX2JSON_PATCH;
   std::cout << std::endl;
 }
 
-void parse_arguments(int argc, char** argv) {
+void parse_arguments(int argc, char** argv)
+{
   int index;
   int c;
 
-  while ((c = getopt(argc, argv, "v")) != -1) {
-    switch (c) {
+  while((c = getopt(argc, argv, "v")) != -1) {
+    switch(c) {
       case 'v':
         version();
         break;
     }
   }
 
-  for (index = optind; index < argc; index++) {
+  for(index = optind; index < argc; index++) {
     printf("Non-option argument %s\n", argv[index]);
   }
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
   parse_arguments(argc, argv);
 
   // if (argv[1] == " -v")

@@ -25,9 +25,11 @@
 
 #include "JsonBox.h"
 
-namespace Fbx2Json {
+namespace Fbx2Json
+{
 
-class FbxExporter {
+class FbxExporter
+{
   public:
     FbxExporter();
     void write();

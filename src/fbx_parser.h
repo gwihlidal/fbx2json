@@ -20,8 +20,8 @@
  * IN THE SOFTWARE.
  */
 
-#ifndef fbx2json_FbxParser_H
-#define fbx2json_FbxParser_H
+#ifndef FBX2JSON_FBXPARSER_H
+#define FBX2JSON_FBXPARSER_H
 
 #include <fbxsdk.h>
 
