@@ -1,11 +1,36 @@
-#include "FBXImporter.h"
+/*
+ * Copyright 2013 Cameron Yule.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
 
-FBXImporter::FBXImporter()
+#include "fbx_importer.h"
+
+namespace Fbx2Json
 {
-  InitializeSdkObjects(mSdkManager, mScene);
+
+Importer::Importer()
+{
+  initialize_sdk_objects(mSdkManager, mScene);
 }
 
-void FBXImporter::InitializeSdkObjects(FbxManager*& pManager, FbxScene*& pScene)
+void Importer::initialize_sdk_objects(FbxManager*& pManager, FbxScene*& pScene)
 {
   pManager = FbxManager::Create();
 
@@ -29,7 +54,7 @@ void FBXImporter::InitializeSdkObjects(FbxManager*& pManager, FbxScene*& pScene)
   }
 }
 
-void FBXImporter::Import(const std::string input)
+void Importer::import(const std::string input)
 {
   const char* lFileName = input.c_str();
 
@@ -41,7 +66,7 @@ void FBXImporter::Import(const std::string input)
 
     if (!mSdkManager->GetIOPluginRegistry()->DetectReaderFileFormat(lFileName, lFileFormat))
     {
-    // Unrecognizable file format. Try to fall back to FbxImporter::eFBX_BINARY
+    // Unrecognizable file format. Try to fall back to Fbximporter::eFBX_BINARY
       lFileFormat = mSdkManager->GetIOPluginRegistry()->FindReaderIDByDescription("FBX binary (*.fbx)");
     }
 
@@ -49,7 +74,7 @@ void FBXImporter::Import(const std::string input)
     {
       std::cout << "Importing file: " << input << std::endl;
 
-      ImportScene();
+      import_scene();
     }
     else
     {
@@ -59,18 +84,18 @@ void FBXImporter::Import(const std::string input)
   }
 }
 
-void FBXImporter::ImportScene()
+void Importer::import_scene()
 {
   if (mImporter->Import(mScene) == true)
   {
-    NormaliseScene();
+    normalise_scene();
   }
 
   mImporter->Destroy();
   mImporter = NULL;
 }
 
-void FBXImporter::NormaliseScene()
+void Importer::normalise_scene()
 {
   // Convert Axis System to what is used in this example, if needed
   FbxAxisSystem SceneAxisSystem = mScene->GetGlobalSettings().GetAxisSystem();
@@ -91,10 +116,10 @@ void FBXImporter::NormaliseScene()
   }
   
   // Convert mesh, NURBS and patch into triangle mesh
-  TriangulateRecursive(mScene->GetRootNode());
+  triangulate_recursive(mScene->GetRootNode());
 }
 
-void FBXImporter::TriangulateRecursive(FbxNode* pNode)
+void Importer::triangulate_recursive(FbxNode* pNode)
 {
   FbxNodeAttribute* lNodeAttribute = pNode->GetNodeAttribute();
 
@@ -114,19 +139,21 @@ void FBXImporter::TriangulateRecursive(FbxNode* pNode)
 
   for (int lChildIndex = 0; lChildIndex < lChildCount; ++lChildIndex)
   {
-    TriangulateRecursive(pNode->GetChild(lChildIndex));
+    triangulate_recursive(pNode->GetChild(lChildIndex));
   }
 }
 
-FBXImporter::~FBXImporter()
+Importer::~Importer()
 {
-  DestroySdkObjects(mSdkManager, true);
+  destroy_sdk_objects(mSdkManager, true);
 }
 
-void FBXImporter::DestroySdkObjects(FbxManager* pManager, bool pExitStatus)
+void Importer::destroy_sdk_objects(FbxManager* pManager, bool pExitStatus)
 {
   if (pManager)
   {
      pManager->Destroy();
   }
 }
+
+} // namespace Fbx2Json
