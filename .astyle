@@ -1,0 +1,11 @@
+--indent=spaces=2
+--style=otbs
+--indent-classes
+--indent-switches
+--indent-col1-comments
+--break-blocks
+--unpad-paren
+--add-brackets
+--convert-tabs
+--suffix=none
+--lineend=linux
