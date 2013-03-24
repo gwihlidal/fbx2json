@@ -20,24 +20,22 @@
  * IN THE SOFTWARE.
  */
 
-#ifndef FBX2JSON_FBXEXPORTER_H_
-#define FBX2JSON_FBXEXPORTER_H_
+#ifndef FBX2JSON_FBXDEFORMATION_H_
+#define FBX2JSON_FBXDEFORMATION_H_
 
-#include "JsonBox.h"
+#include <fbxsdk.h>
+#include "fbx_position.h"
 
 namespace Fbx2Json
 {
-
-class Exporter
-{
-  public:
-    Exporter();
-    void write();
-    ~Exporter();
-
-  private:
-};
-
+void compute_shape_deformation(FbxMesh* pMesh, FbxTime& pTime, FbxAnimLayer * pAnimLayer, FbxVector4* pVertexArray);
+void compute_cluster_deformation(FbxAMatrix& pGlobalPosition, FbxMesh* pMesh, FbxCluster* pCluster, FbxAMatrix& pVertexTransformMatrix, FbxTime pTime, FbxPose* pPose);
+void compute_linear_deformation(FbxAMatrix& pGlobalPosition, FbxMesh* pMesh, FbxTime& pTime, FbxVector4* pVertexArray, FbxPose* pPose);
+void compute_dual_quaternion_deformation(FbxAMatrix& pGlobalPosition, FbxMesh* pMesh, FbxTime& pTime, FbxVector4* pVertexArray, FbxPose* pPose);
+void compute_skin_deformation(FbxAMatrix& pGlobalPosition, FbxMesh* pMesh, FbxTime& pTime, FbxVector4* pVertexArray, FbxPose* pPose);
+void matrix_scale(FbxAMatrix& pMatrix, double pValue);
+void matrix_add_to_diagonal(FbxAMatrix& pMatrix, double pValue);
+void matrix_add(FbxAMatrix& pDstMatrix, FbxAMatrix& pSrcMatrix);
 } // namespace Fbx2Json
 
 #endif

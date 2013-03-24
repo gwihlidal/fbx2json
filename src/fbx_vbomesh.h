@@ -20,24 +20,52 @@
  * IN THE SOFTWARE.
  */
 
-#ifndef FBX2JSON_FBXEXPORTER_H_
-#define FBX2JSON_FBXEXPORTER_H_
+#ifndef FBX2JSON_FBXVBOMESH_H_
+#define FBX2JSON_FBXVBOMESH_H_
 
-#include "JsonBox.h"
+#include <vector>
+#include <fbxsdk.h>
+#include <glew.h>
 
 namespace Fbx2Json
 {
-
-class Exporter
+class VBOMesh
 {
   public:
-    Exporter();
-    void write();
-    ~Exporter();
+    VBOMesh();
+    ~VBOMesh();
+    bool initialize(const FbxMesh * mesh);
+    void update_vertex_position(FbxMesh * mesh, const FbxVector4 * vertices);
+    int get_submesh_count() const {
+      return submeshes.GetCount();
+    }
 
   private:
-};
+    std::vector<float> * vertices;
+    std::vector<float> * normals;
+    std::vector<float> * uvs;
+    std::vector<GLuint> * indices;
 
+    enum {
+      VERTEX_VBO,
+      NORMAL_VBO,
+      UV_VBO,
+      INDEX_VBO,
+      VBO_COUNT,
+    };
+
+    struct SubMesh {
+      SubMesh() : index_offset(0), triangle_count(0) {}
+      int index_offset;
+      int triangle_count;
+    };
+
+    GLuint vbo_names[VBO_COUNT];
+    FbxArray<SubMesh*> submeshes;
+    bool has_normal;
+    bool has_uv;
+    bool all_by_control_points;
+};
 } // namespace Fbx2Json
 
 #endif

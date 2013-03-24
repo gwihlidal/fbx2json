@@ -59,17 +59,17 @@ bool parse_arguments(int argc, char** argv)
     }
   }
 
-  if (argc < 3) {
+  if(argc < 3) {
     usage(argv[0]);
     return false;
   }
-  
+
   return true;
 }
 
 int main(int argc, char** argv)
 {
-  if (parse_arguments(argc, argv)) {
+  if(parse_arguments(argc, argv)) {
     std::string input = argv[1];
     std::string output = argv[2];
 

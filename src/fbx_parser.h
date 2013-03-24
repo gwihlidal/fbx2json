@@ -23,7 +23,11 @@
 #ifndef FBX2JSON_FBXPARSER_H
 #define FBX2JSON_FBXPARSER_H
 
+#include <vector>
 #include <fbxsdk.h>
+#include "fbx_deformation.h"
+#include "fbx_position.h"
+#include "fbx_vbomesh.h"
 
 namespace Fbx2Json
 {
@@ -36,7 +40,9 @@ class Parser
     ~Parser();
 
   private:
-
+    void bake_meshes_recursive(std::vector<VBOMesh *> * meshes, FbxNode * node, FbxAnimLayer * animation_layer);
+    void bake_mesh_deformations(FbxNode* node, FbxTime& time, FbxAnimLayer* animation_layer, FbxAMatrix& global_position, FbxPose* pose);
+    void read_vertex_cache_data(FbxMesh* mesh, FbxTime& time, FbxVector4* vertex_array);
 };
 
 } // namespace Fbx2Json

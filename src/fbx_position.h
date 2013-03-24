@@ -20,24 +20,16 @@
  * IN THE SOFTWARE.
  */
 
-#ifndef FBX2JSON_FBXEXPORTER_H_
-#define FBX2JSON_FBXEXPORTER_H_
+#ifndef FBX2JSON_FBXPOSITION_H_
+#define FBX2JSON_FBXPOSITION_H_
 
-#include "JsonBox.h"
+#include <fbxsdk.h>
 
 namespace Fbx2Json
 {
-
-class Exporter
-{
-  public:
-    Exporter();
-    void write();
-    ~Exporter();
-
-  private:
-};
-
+FbxAMatrix get_global_position(FbxNode* node, const FbxTime& time, FbxPose* pose = NULL, FbxAMatrix* parent_global_position = NULL);
+FbxAMatrix get_pose_matrix(FbxPose* pose, int node_index);
+FbxAMatrix get_geometry(FbxNode* node);
 } // namespace Fbx2Json
 
 #endif

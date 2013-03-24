@@ -36,20 +36,20 @@ class Importer
     Importer();
     void import(const std::string input);
     FbxScene * get_scene() {
-      return mScene;
+      return scene;
     };
     ~Importer();
 
   private:
-    void initialize_sdk_objects(FbxManager*& pManager, FbxScene*& pScene);
+    void initialize_sdk_objects(FbxManager*& manager, FbxScene*& scene);
     void import_scene();
     void normalise_scene();
-    void triangulate_recursive(FbxNode* pNode);
-    void destroy_sdk_objects(FbxManager* pManager, bool pExitStatus);
+    void triangulate_recursive(FbxNode* node);
+    void destroy_sdk_objects(FbxManager* manager, bool exit_status);
 
-    FbxManager * mSdkManager;
-    FbxScene * mScene;
-    FbxImporter * mImporter;
+    FbxManager * sdk_manager;
+    FbxScene * scene;
+    FbxImporter * importer;
 };
 
 } // namespace Fbx2Json
