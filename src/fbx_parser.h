@@ -28,12 +28,12 @@
 namespace Fbx2Json
 {
 
-class FbxParser
+class Parser
 {
   public:
-    FbxParser();
+    Parser();
     void parse(FbxScene* pScene);
-    ~FbxParser();
+    ~Parser();
 
   private:
 

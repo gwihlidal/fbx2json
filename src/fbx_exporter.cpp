@@ -25,17 +25,17 @@
 namespace Fbx2Json
 {
 
-FbxExporter::FbxExporter()
+Exporter::Exporter()
 {
 
 }
 
-void FbxExporter::write()
+void Exporter::write()
 {
 
 }
 
-FbxExporter::~FbxExporter()
+Exporter::~Exporter()
 {
 
 }

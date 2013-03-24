@@ -25,12 +25,12 @@
 namespace Fbx2Json
 {
 
-FbxParser::FbxParser()
+Parser::Parser()
 {
 
 }
 
-void FbxParser::parse(FbxScene* pScene)
+void Parser::parse(FbxScene* pScene)
 {
 
 }
@@ -421,7 +421,7 @@ void FbxParser::parse(FbxScene* pScene)
 //     return true;
 // }
 
-FbxParser::~FbxParser()
+Parser::~Parser()
 {
 
 }

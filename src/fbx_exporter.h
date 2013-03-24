@@ -28,12 +28,12 @@
 namespace Fbx2Json
 {
 
-class FbxExporter
+class Exporter
 {
   public:
-    FbxExporter();
+    Exporter();
     void write();
-    ~FbxExporter();
+    ~Exporter();
 
   private:
 };

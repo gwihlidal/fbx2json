@@ -78,11 +78,11 @@ int main(int argc, char** argv)
     importer.import(input);
 
     // Bake component parts of FBX into raw data for export
-    Fbx2Json::FbxParser parser = Fbx2Json::FbxParser();
+    Fbx2Json::Parser parser = Fbx2Json::Parser();
     // parser.parse(importer.GetScene());
 
     // Output JSON-formatted raw data
-    Fbx2Json::FbxExporter exporter = Fbx2Json::FbxExporter();
+    Fbx2Json::Exporter exporter = Fbx2Json::Exporter();
     // exporter.export();
 
     return EXIT_SUCCESS;
