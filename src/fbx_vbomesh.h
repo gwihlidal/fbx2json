@@ -39,13 +39,12 @@ class VBOMesh
     int get_submesh_count() const {
       return submeshes.GetCount();
     }
-
-  private:
     std::vector<float> * vertices;
     std::vector<float> * normals;
     std::vector<float> * uvs;
     std::vector<GLuint> * indices;
 
+  private:
     enum {
       VERTEX_VBO,
       NORMAL_VBO,

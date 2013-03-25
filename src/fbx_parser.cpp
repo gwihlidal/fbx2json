@@ -30,11 +30,11 @@ Parser::Parser()
 
 }
 
-// TODO: Capture scene texture filenames, parse to websafe format
+// TODO: Capture scene texture filenames, convert to web-safe format
 // TODO: Materials
 void Parser::parse(FbxScene * scene)
 {
-  std::vector<VBOMesh *> * meshes = new std::vector<VBOMesh *>;
+  meshes = new std::vector<VBOMesh *>;
   FbxAnimLayer * animation_layer = NULL;
 
   FbxNode * node = scene->GetRootNode();
@@ -78,6 +78,7 @@ void Parser::bake_meshes_recursive(std::vector<VBOMesh *> * meshes, FbxNode * no
   }
 }
 
+// In FBX, geometries can be deformed using skinning, shapes, or vertex caches.
 void Parser::bake_mesh_deformations(FbxNode* node, FbxTime& current_time, FbxAnimLayer* animation_layer, FbxAMatrix& global_position, FbxPose* pose)
 {
   FbxMesh* mesh = node->GetMesh();

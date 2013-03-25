@@ -23,6 +23,8 @@
 #include <iostream>
 #include <string>
 
+#define FBXSDK_NEW_API
+
 #include "fbx_importer.h"
 #include "fbx_parser.h"
 #include "fbx_exporter.h"
@@ -69,24 +71,26 @@ bool parse_arguments(int argc, char** argv)
 
 int main(int argc, char** argv)
 {
-  if(parse_arguments(argc, argv)) {
-    std::string input = argv[1];
-    std::string output = argv[2];
+//  if(parse_arguments(argc, argv)) {
+//    std::string input = argv[1];
+//    std::string output = argv[2];
+    std::string input = "/Users/cameronyule/projects/personal/fbx2json/examples/drillbugtest.fbx";
+    std::string output = "/Users/cameronyule/Desktop/out.js";
 
     // Initialise the FBX SDK and import our FBX file
     Fbx2Json::Importer importer = Fbx2Json::Importer();
     importer.import(input);
 
-    // Bake component parts of FBX into raw data for export
+    // Bake component parts of FBX for export
     Fbx2Json::Parser parser = Fbx2Json::Parser();
-    // parser.parse(importer.GetScene());
+    parser.parse(importer.get_scene());
 
     // Output JSON-formatted raw data
     Fbx2Json::Exporter exporter = Fbx2Json::Exporter();
-    // exporter.export();
+    exporter.write(output, parser.get_meshes());
 
     return EXIT_SUCCESS;
-  }
+//  }
 
-  return EXIT_FAILURE;
+//  return EXIT_FAILURE;
 }

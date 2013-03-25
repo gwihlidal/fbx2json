@@ -23,6 +23,8 @@
 #ifndef FBX2JSON_FBXEXPORTER_H_
 #define FBX2JSON_FBXEXPORTER_H_
 
+#include <vector>
+#include "fbx_vbomesh.h"
 #include "JsonBox.h"
 
 namespace Fbx2Json
@@ -32,7 +34,7 @@ class Exporter
 {
   public:
     Exporter();
-    void write();
+    void write(const std::string output, std::vector<VBOMesh *> * meshes);
     ~Exporter();
 
   private:

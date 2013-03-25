@@ -37,12 +37,15 @@ class Parser
   public:
     Parser();
     void parse(FbxScene* pScene);
+    std::vector<VBOMesh *> * get_meshes(){ return meshes; };
     ~Parser();
 
   private:
     void bake_meshes_recursive(std::vector<VBOMesh *> * meshes, FbxNode * node, FbxAnimLayer * animation_layer);
     void bake_mesh_deformations(FbxNode* node, FbxTime& time, FbxAnimLayer* animation_layer, FbxAMatrix& global_position, FbxPose* pose);
     void read_vertex_cache_data(FbxMesh* mesh, FbxTime& time, FbxVector4* vertex_array);
+    
+    std::vector<VBOMesh *> * meshes;
 };
 
 } // namespace Fbx2Json

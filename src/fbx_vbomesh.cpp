@@ -45,10 +45,10 @@ VBOMesh::~VBOMesh()
     delete submeshes[i];
   }
 
-  //  mVertices->clear();
-  //  mIndices->clear();
-  //  mNormals->clear();
-  //  mUVs->clear();
+  vertices->clear();
+  indices->clear();
+  normals->clear();
+  uvs->clear();
 
   submeshes.Clear();
 }
@@ -196,7 +196,7 @@ bool VBOMesh::initialize(const FbxMesh *mesh)
       vertices->insert(vertices->begin() + (i * VERTEX_STRIDE), static_cast<float>(current_vertex[0]));
       vertices->insert(vertices->begin() + (i * VERTEX_STRIDE + 1), static_cast<float>(current_vertex[1]));
       vertices->insert(vertices->begin() + (i * VERTEX_STRIDE + 2), static_cast<float>(current_vertex[2]));
-      vertices->insert(vertices->begin() + (i * VERTEX_STRIDE + 3), 1);
+//      vertices->insert(vertices->begin() + (i * VERTEX_STRIDE + 3), 1);
 
       // Save the normal.
       if(has_normal) {
@@ -256,7 +256,7 @@ bool VBOMesh::initialize(const FbxMesh *mesh)
         vertices->insert(vertices->begin() + (vertex_count * VERTEX_STRIDE), static_cast<float>(current_vertex[0]));
         vertices->insert(vertices->begin() + (vertex_count * VERTEX_STRIDE + 1), static_cast<float>(current_vertex[1]));
         vertices->insert(vertices->begin() + (vertex_count * VERTEX_STRIDE + 2), static_cast<float>(current_vertex[2]));
-        vertices->insert(vertices->begin() + (vertex_count * VERTEX_STRIDE + 3), 1);
+//        vertices->insert(vertices->begin() + (vertex_count * VERTEX_STRIDE + 3), 1);
 
         if(has_normal) {
           mesh->GetPolygonVertexNormal(polygon_index, vertice_index, current_normal);
@@ -293,7 +293,7 @@ void VBOMesh::update_vertex_position(FbxMesh * mesh, const FbxVector4 * deformed
       vertices->insert(vertices->begin() + (i * VERTEX_STRIDE), static_cast<float>(deformed_vertices[i][0]));
       vertices->insert(vertices->begin() + (i * VERTEX_STRIDE + 1), static_cast<float>(deformed_vertices[i][1]));
       vertices->insert(vertices->begin() + (i * VERTEX_STRIDE + 2), static_cast<float>(deformed_vertices[i][2]));
-      vertices->insert(vertices->begin() + (i * VERTEX_STRIDE + 3), 1);
+//      vertices->insert(vertices->begin() + (i * VERTEX_STRIDE + 3), 1);
     }
   } else {
     const int polygon_count = mesh->GetPolygonCount();
@@ -308,7 +308,7 @@ void VBOMesh::update_vertex_position(FbxMesh * mesh, const FbxVector4 * deformed
         vertices->insert(vertices->begin() + (vertex_count * VERTEX_STRIDE), static_cast<float>(deformed_vertices[control_point_index][0]));
         vertices->insert(vertices->begin() + (vertex_count * VERTEX_STRIDE + 1), static_cast<float>(deformed_vertices[control_point_index][1]));
         vertices->insert(vertices->begin() + (vertex_count * VERTEX_STRIDE + 2), static_cast<float>(deformed_vertices[control_point_index][2]));
-        vertices->insert(vertices->begin() + (vertex_count * VERTEX_STRIDE + 3), 1);
+//        vertices->insert(vertices->begin() + (vertex_count * VERTEX_STRIDE + 3), 1);
         ++vertex_count;
       }
     }
