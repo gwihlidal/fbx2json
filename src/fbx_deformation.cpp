@@ -239,6 +239,7 @@ void compute_linear_deformation(FbxAMatrix& pGlobalPosition,
 
   //Actually deform each vertices here by information stored in lClusterDeformation and lClusterWeight
   for(int i = 0; i < lVertexCount; i++) {
+
     FbxVector4 lSrcVertex = pVertexArray[i];
     FbxVector4& lDstVertex = pVertexArray[i];
     double lWeight = lClusterWeight[i];

@@ -27,7 +27,7 @@ namespace Fbx2Json
 
 const float ANGLE_TO_RADIAN = 3.1415926f / 180.f;
 const int TRIANGLE_VERTEX_COUNT = 3;
-const int VERTEX_STRIDE = 3;
+const int VERTEX_STRIDE = 4;
 const int NORMAL_STRIDE = 3;
 const int UV_STRIDE = 2;
 
@@ -45,10 +45,10 @@ VBOMesh::~VBOMesh()
     delete submeshes[i];
   }
 
-  vertices->clear();
-  indices->clear();
-  normals->clear();
-  uvs->clear();
+  //  vertices->clear();
+  //  indices->clear();
+  //  normals->clear();
+  //  uvs->clear();
 
   submeshes.Clear();
 }
@@ -154,21 +154,21 @@ bool VBOMesh::initialize(const FbxMesh *mesh)
     polygon_vertex_count = polygon_count * TRIANGLE_VERTEX_COUNT;
   }
 
-  vertices = new std::vector<float>[polygon_vertex_count * VERTEX_STRIDE];
-  indices = new std::vector<GLuint>[polygon_count * TRIANGLE_VERTEX_COUNT];
-  normals = NULL;
+  vertices = std::vector<float>(polygon_vertex_count * VERTEX_STRIDE);
+  indices = std::vector<GLuint>(polygon_count * TRIANGLE_VERTEX_COUNT);
+  //  normals = NULL;
 
   if(has_normal) {
-    normals = new std::vector<float>[polygon_vertex_count * NORMAL_STRIDE];
+    normals = std::vector<float>(polygon_vertex_count * NORMAL_STRIDE);
   }
 
-  uvs = NULL;
+  //  uvs = NULL;
   FbxStringList uv_names;
   mesh->GetUVSetNames(uv_names);
   const char * uv_name = NULL;
 
   if(has_uv && uv_names.GetCount()) {
-    uvs = new std::vector<float>[polygon_vertex_count * UV_STRIDE];
+    uvs = std::vector<float>(polygon_vertex_count * UV_STRIDE);
     uv_name = uv_names[0];
   }
 
@@ -193,10 +193,10 @@ bool VBOMesh::initialize(const FbxMesh *mesh)
     for(int i = 0; i < polygon_vertex_count; ++i) {
       // Save the vertex position.
       current_vertex = control_points[i];
-      vertices->insert(vertices->begin() + (i * VERTEX_STRIDE), static_cast<float>(current_vertex[0]));
-      vertices->insert(vertices->begin() + (i * VERTEX_STRIDE + 1), static_cast<float>(current_vertex[1]));
-      vertices->insert(vertices->begin() + (i * VERTEX_STRIDE + 2), static_cast<float>(current_vertex[2]));
-//      vertices->insert(vertices->begin() + (i * VERTEX_STRIDE + 3), 1);
+      vertices[i * VERTEX_STRIDE] = static_cast<float>(current_vertex[0]);
+      vertices[i * VERTEX_STRIDE + 1] = static_cast<float>(current_vertex[1]);
+      vertices[i * VERTEX_STRIDE + 2] = static_cast<float>(current_vertex[2]);
+      vertices[i * VERTEX_STRIDE + 3] = 1;
 
       // Save the normal.
       if(has_normal) {
@@ -207,9 +207,9 @@ bool VBOMesh::initialize(const FbxMesh *mesh)
         }
 
         current_normal = normal_element->GetDirectArray().GetAt(normal_index);
-        normals->insert(normals->begin() + (i * NORMAL_STRIDE), static_cast<float>(current_normal[0]));
-        normals->insert(normals->begin() + (i * NORMAL_STRIDE + 1), static_cast<float>(current_normal[1]));
-        normals->insert(normals->begin() + (i * NORMAL_STRIDE + 2), static_cast<float>(current_normal[2]));
+        normals[i * NORMAL_STRIDE] = static_cast<float>(current_normal[0]);
+        normals[i * NORMAL_STRIDE + 1] = static_cast<float>(current_normal[1]);
+        normals[i * NORMAL_STRIDE + 2] = static_cast<float>(current_normal[2]);
       }
 
       // Save the UV.
@@ -221,8 +221,8 @@ bool VBOMesh::initialize(const FbxMesh *mesh)
         }
 
         current_uv = uv_element->GetDirectArray().GetAt(uv_index);
-        uvs->insert(uvs->begin() + (i * UV_STRIDE), static_cast<float>(current_uv[0]));
-        uvs->insert(uvs->begin() + (i * UV_STRIDE + 1), static_cast<float>(current_uv[1]));
+        uvs[i * UV_STRIDE] = static_cast<float>(current_uv[0]);
+        uvs[i * UV_STRIDE + 1] = static_cast<float>(current_uv[1]);
       }
     }
 
@@ -246,29 +246,29 @@ bool VBOMesh::initialize(const FbxMesh *mesh)
       const int control_point_index = mesh->GetPolygonVertex(polygon_index, vertice_index);
 
       if(all_by_control_points) {
-        indices->insert(indices->begin() + (index_offset + vertice_index), static_cast<GLuint>(control_point_index));
+        indices[index_offset + vertice_index] = static_cast<unsigned int>(control_point_index);
       }
       // Populate the array with vertex attribute, if by polygon vertex.
       else {
-        indices->insert(indices->begin() + (index_offset + vertice_index), static_cast<GLuint>(vertex_count));
+        indices[index_offset + vertice_index] = static_cast<GLuint>(vertex_count);
 
         current_vertex = control_points[control_point_index];
-        vertices->insert(vertices->begin() + (vertex_count * VERTEX_STRIDE), static_cast<float>(current_vertex[0]));
-        vertices->insert(vertices->begin() + (vertex_count * VERTEX_STRIDE + 1), static_cast<float>(current_vertex[1]));
-        vertices->insert(vertices->begin() + (vertex_count * VERTEX_STRIDE + 2), static_cast<float>(current_vertex[2]));
-//        vertices->insert(vertices->begin() + (vertex_count * VERTEX_STRIDE + 3), 1);
+        vertices[vertex_count * VERTEX_STRIDE] = static_cast<float>(current_vertex[0]);
+        vertices[vertex_count * VERTEX_STRIDE + 1] = static_cast<float>(current_vertex[1]);
+        vertices[vertex_count * VERTEX_STRIDE + 2] = static_cast<float>(current_vertex[2]);
+        vertices[vertex_count * VERTEX_STRIDE + 3] = 1;
 
         if(has_normal) {
           mesh->GetPolygonVertexNormal(polygon_index, vertice_index, current_normal);
-          normals->insert(normals->begin() + (vertex_count * NORMAL_STRIDE), static_cast<float>(current_normal[0]));
-          normals->insert(normals->begin() + (vertex_count * NORMAL_STRIDE + 1), static_cast<float>(current_normal[1]));
-          normals->insert(normals->begin() + (vertex_count * NORMAL_STRIDE + 2), static_cast<float>(current_normal[2]));
+          normals[vertex_count * NORMAL_STRIDE] = static_cast<float>(current_normal[0]);
+          normals[vertex_count * NORMAL_STRIDE + 1] = static_cast<float>(current_normal[1]);
+          normals[vertex_count * NORMAL_STRIDE + 2] = static_cast<float>(current_normal[2]);
         }
 
         if(has_uv) {
           mesh->GetPolygonVertexUV(polygon_index, vertice_index, uv_name, current_uv);
-          uvs->insert(uvs->begin() + (vertex_count * UV_STRIDE), static_cast<float>(current_uv[0]));
-          uvs->insert(uvs->begin() + (vertex_count * UV_STRIDE + 1), static_cast<float>(current_uv[1]));
+          uvs[vertex_count * UV_STRIDE] = static_cast<float>(current_uv[0]);
+          uvs[vertex_count * UV_STRIDE + 1] = static_cast<float>(current_uv[1]);
         }
       }
 
@@ -287,28 +287,29 @@ void VBOMesh::update_vertex_position(FbxMesh * mesh, const FbxVector4 * deformed
 
   if(all_by_control_points) {
     vertex_count = mesh->GetControlPointsCount();
-    vertices = new std::vector<float>(vertex_count * VERTEX_STRIDE);
+    vertices = std::vector<float>(vertex_count * VERTEX_STRIDE);
 
     for(int i = 0; i < vertex_count; ++i) {
-      vertices->insert(vertices->begin() + (i * VERTEX_STRIDE), static_cast<float>(deformed_vertices[i][0]));
-      vertices->insert(vertices->begin() + (i * VERTEX_STRIDE + 1), static_cast<float>(deformed_vertices[i][1]));
-      vertices->insert(vertices->begin() + (i * VERTEX_STRIDE + 2), static_cast<float>(deformed_vertices[i][2]));
-//      vertices->insert(vertices->begin() + (i * VERTEX_STRIDE + 3), 1);
+      vertices[i * VERTEX_STRIDE] = static_cast<float>(deformed_vertices[i][0]);
+      vertices[i * VERTEX_STRIDE + 1] = static_cast<float>(deformed_vertices[i][1]);
+      vertices[i * VERTEX_STRIDE + 2] = static_cast<float>(deformed_vertices[i][2]);
+      vertices[i * VERTEX_STRIDE + 3] = 1;
     }
   } else {
     const int polygon_count = mesh->GetPolygonCount();
     vertex_count = polygon_count * TRIANGLE_VERTEX_COUNT;
-    vertices = new std::vector<float>(vertex_count * VERTEX_STRIDE);
+    vertices = std::vector<float>(vertex_count * VERTEX_STRIDE);
 
     int vertex_count = 0;
 
     for(int i = 0; i < polygon_count; ++i) {
       for(int j = 0; j < TRIANGLE_VERTEX_COUNT; ++j) {
         const int control_point_index = mesh->GetPolygonVertex(i, j);
-        vertices->insert(vertices->begin() + (vertex_count * VERTEX_STRIDE), static_cast<float>(deformed_vertices[control_point_index][0]));
-        vertices->insert(vertices->begin() + (vertex_count * VERTEX_STRIDE + 1), static_cast<float>(deformed_vertices[control_point_index][1]));
-        vertices->insert(vertices->begin() + (vertex_count * VERTEX_STRIDE + 2), static_cast<float>(deformed_vertices[control_point_index][2]));
-//        vertices->insert(vertices->begin() + (vertex_count * VERTEX_STRIDE + 3), 1);
+        vertices[vertex_count * VERTEX_STRIDE] = static_cast<float>(deformed_vertices[control_point_index][0]);
+        vertices[vertex_count * VERTEX_STRIDE + 1] = static_cast<float>(deformed_vertices[control_point_index][1]);
+        vertices[vertex_count * VERTEX_STRIDE + 2] = static_cast<float>(deformed_vertices[control_point_index][2]);
+        vertices[vertex_count * VERTEX_STRIDE + 3] = 1;
+
         ++vertex_count;
       }
     }

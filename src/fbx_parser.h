@@ -23,6 +23,7 @@
 #ifndef FBX2JSON_FBXPARSER_H
 #define FBX2JSON_FBXPARSER_H
 
+#include <stream.h>
 #include <vector>
 #include <fbxsdk.h>
 #include "fbx_deformation.h"
@@ -37,14 +38,16 @@ class Parser
   public:
     Parser();
     void parse(FbxScene* pScene);
-    std::vector<VBOMesh *> * get_meshes(){ return meshes; };
+    std::vector<VBOMesh *> * get_meshes() {
+      return meshes;
+    };
     ~Parser();
 
   private:
-    void bake_meshes_recursive(std::vector<VBOMesh *> * meshes, FbxNode * node, FbxAnimLayer * animation_layer);
-    void bake_mesh_deformations(FbxNode* node, FbxTime& time, FbxAnimLayer* animation_layer, FbxAMatrix& global_position, FbxPose* pose);
+    void bake_meshes_recursive(FbxNode * node, FbxAnimLayer * animation_layer);
+    void bake_mesh_deformations(FbxMesh* mesh, VBOMesh * mesh_cache, FbxTime& time, FbxAnimLayer* animation_layer, FbxAMatrix& global_position, FbxPose* pose);
     void read_vertex_cache_data(FbxMesh* mesh, FbxTime& time, FbxVector4* vertex_array);
-    
+
     std::vector<VBOMesh *> * meshes;
 };
 

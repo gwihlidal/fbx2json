@@ -24,6 +24,7 @@
 #define FBX2JSON_FBXEXPORTER_H_
 
 #include <vector>
+#include <iterator>
 #include "fbx_vbomesh.h"
 #include "JsonBox.h"
 

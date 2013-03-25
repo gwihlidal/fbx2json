@@ -23,6 +23,7 @@
 #ifndef FBX2JSON_FBXDEFORMATION_H_
 #define FBX2JSON_FBXDEFORMATION_H_
 
+#include <stream.h>
 #include <fbxsdk.h>
 #include "fbx_position.h"
 

@@ -39,10 +39,10 @@ void Parser::parse(FbxScene * scene)
 
   FbxNode * node = scene->GetRootNode();
 
-  bake_meshes_recursive(meshes, node, animation_layer);
+  bake_meshes_recursive(node, animation_layer);
 }
 
-void Parser::bake_meshes_recursive(std::vector<VBOMesh *> * meshes, FbxNode * node, FbxAnimLayer * animation_layer)
+void Parser::bake_meshes_recursive(FbxNode * node, FbxAnimLayer * animation_layer)
 {
   FbxPose * pose = NULL;
   FbxTime current_time;
@@ -59,12 +59,12 @@ void Parser::bake_meshes_recursive(std::vector<VBOMesh *> * meshes, FbxNode * no
       if(mesh && !mesh->GetUserDataPtr()) {
         VBOMesh * mesh_cache = new VBOMesh;
 
-        FbxAMatrix geometry_offset = get_geometry(node);
-        FbxAMatrix global_offset_position = global_position * geometry_offset;
-
-        bake_mesh_deformations(node, current_time, animation_layer, global_offset_position, pose);
-
         if(mesh_cache->initialize(mesh)) {
+
+          FbxAMatrix geometry_offset = get_geometry(node);
+          FbxAMatrix global_offset_position = global_position * geometry_offset;
+          bake_mesh_deformations(mesh, mesh_cache, current_time, animation_layer, global_offset_position, pose);
+
           meshes->push_back(mesh_cache);
         }
       }
@@ -74,21 +74,20 @@ void Parser::bake_meshes_recursive(std::vector<VBOMesh *> * meshes, FbxNode * no
   const int node_child_count = node->GetChildCount();
 
   for(int node_child_index = 0; node_child_index < node_child_count; ++node_child_index) {
-    bake_meshes_recursive(meshes, node->GetChild(node_child_index), animation_layer);
+    bake_meshes_recursive(node->GetChild(node_child_index), animation_layer);
   }
 }
 
 // In FBX, geometries can be deformed using skinning, shapes, or vertex caches.
-void Parser::bake_mesh_deformations(FbxNode* node, FbxTime& current_time, FbxAnimLayer* animation_layer, FbxAMatrix& global_position, FbxPose* pose)
+void Parser::bake_mesh_deformations(FbxMesh* mesh, VBOMesh * mesh_cache, FbxTime& current_time, FbxAnimLayer* animation_layer, FbxAMatrix& global_position, FbxPose* pose)
 {
-  FbxMesh* mesh = node->GetMesh();
   const int vertex_count = mesh->GetControlPointsCount();
 
   if(vertex_count == 0) {
     return;
   }
 
-  VBOMesh * mesh_cache = static_cast<VBOMesh *>(mesh->GetUserDataPtr());
+  //  VBOMesh * mesh_cache = static_cast<VBOMesh *>(mesh->GetUserDataPtr());
 
   // If it has some defomer connection, update the vertices position
   const bool has_vertex_cache = mesh->GetDeformerCount(FbxDeformer::eVertexCache) && (static_cast<FbxVertexCacheDeformer*>(mesh->GetDeformer(0, FbxDeformer::eVertexCache)))->IsActive();
