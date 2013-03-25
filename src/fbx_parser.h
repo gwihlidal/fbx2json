@@ -23,7 +23,6 @@
 #ifndef FBX2JSON_FBXPARSER_H
 #define FBX2JSON_FBXPARSER_H
 
-#include <stream.h>
 #include <vector>
 #include <fbxsdk.h>
 #include "fbx_deformation.h"
