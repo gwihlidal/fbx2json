@@ -132,7 +132,7 @@ void Parser::bake_mesh_deformations(FbxMesh* mesh, VBOMesh * mesh_cache, FbxTime
       }
     }
 
-    if(mesh_cache) {
+    if(mesh_cache && vertex_array) {
       mesh_cache->update_vertex_position(mesh, vertex_array);
     }
 
