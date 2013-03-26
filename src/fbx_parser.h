@@ -44,7 +44,8 @@ class Parser
 
   private:
     void bake_meshes_recursive(FbxNode * node, FbxAnimLayer * animation_layer);
-    void bake_mesh_deformations(FbxMesh* mesh, VBOMesh * mesh_cache, FbxTime& time, FbxAnimLayer* animation_layer, FbxAMatrix& global_position, FbxPose* pose);
+    void bake_mesh_deformations(FbxMesh* mesh, VBOMesh * mesh_cache, FbxTime& time, FbxAnimLayer* animation_layer, FbxAMatrix& global_offset_position, FbxPose* pose);
+    void bake_global_positions(FbxVector4* control_points, int control_points_count, FbxAMatrix& global_offset_position);
     void read_vertex_cache_data(FbxMesh* mesh, FbxTime& time, FbxVector4* vertex_array);
 
     std::vector<VBOMesh *> * meshes;

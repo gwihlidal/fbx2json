@@ -55,14 +55,17 @@ void Parser::bake_meshes_recursive(FbxNode * node, FbxAnimLayer * animation_laye
   if(node_attribute) {
     if(node_attribute->GetAttributeType() == FbxNodeAttribute::eMesh) {
       FbxMesh * mesh = node->GetMesh();
+        
+      FbxAMatrix geometry_offset = get_geometry(node);
+      FbxAMatrix global_offset_position = global_position * geometry_offset;
+
+      FbxVector4* control_points = mesh->GetControlPoints();
+      bake_global_positions(control_points, mesh->GetControlPointsCount(), global_offset_position);
 
       if(mesh && !mesh->GetUserDataPtr()) {
         VBOMesh * mesh_cache = new VBOMesh;
 
         if(mesh_cache->initialize(mesh)) {
-
-          FbxAMatrix geometry_offset = get_geometry(node);
-          FbxAMatrix global_offset_position = global_position * geometry_offset;
           bake_mesh_deformations(mesh, mesh_cache, current_time, animation_layer, global_offset_position, pose);
 
           meshes->push_back(mesh_cache);
@@ -77,9 +80,16 @@ void Parser::bake_meshes_recursive(FbxNode * node, FbxAnimLayer * animation_laye
     bake_meshes_recursive(node->GetChild(node_child_index), animation_layer);
   }
 }
+    
+void Parser::bake_global_positions(FbxVector4* control_points, int control_points_count, FbxAMatrix& global_offset_position)
+{
+    for (int i = 0; i < control_points_count; i++) {
+        control_points[i] = global_offset_position.MultT(control_points[i]);
+    }
+}
 
 // In FBX, geometries can be deformed using skinning, shapes, or vertex caches.
-void Parser::bake_mesh_deformations(FbxMesh* mesh, VBOMesh * mesh_cache, FbxTime& current_time, FbxAnimLayer* animation_layer, FbxAMatrix& global_position, FbxPose* pose)
+void Parser::bake_mesh_deformations(FbxMesh* mesh, VBOMesh * mesh_cache, FbxTime& current_time, FbxAnimLayer* animation_layer, FbxAMatrix& global_offset_position, FbxPose* pose)
 {
   const int vertex_count = mesh->GetControlPointsCount();
 
@@ -100,6 +110,7 @@ void Parser::bake_mesh_deformations(FbxMesh* mesh, VBOMesh * mesh_cache, FbxTime
   if(!mesh_cache || has_deformation) {
     vertex_array = new FbxVector4[vertex_count];
     memcpy(vertex_array, mesh->GetControlPoints(), vertex_count * sizeof(FbxVector4));
+    bake_global_positions(vertex_array, vertex_count, global_offset_position);
   }
 
   if(has_deformation) {
@@ -122,7 +133,7 @@ void Parser::bake_mesh_deformations(FbxMesh* mesh, VBOMesh * mesh_cache, FbxTime
 
       if(cluster_count) {
         // Deform the vertex array with the skin deformer.
-        compute_skin_deformation(global_position, mesh, current_time, vertex_array, pose);
+        compute_skin_deformation(global_offset_position, mesh, current_time, vertex_array, pose);
       }
     }
 
