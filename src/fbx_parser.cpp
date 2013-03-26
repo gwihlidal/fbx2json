@@ -100,10 +100,9 @@ void Parser::bake_mesh_deformations(FbxMesh* mesh, VBOMesh * mesh_cache, FbxTime
   //  VBOMesh * mesh_cache = static_cast<VBOMesh *>(mesh->GetUserDataPtr());
 
   // If it has some defomer connection, update the vertices position
-  const bool has_vertex_cache = mesh->GetDeformerCount(FbxDeformer::eVertexCache) && (static_cast<FbxVertexCacheDeformer*>(mesh->GetDeformer(0, FbxDeformer::eVertexCache)))->IsActive();
   const bool has_shape = mesh->GetShapeCount() > 0;
   const bool has_skin = mesh->GetDeformerCount(FbxDeformer::eSkin) > 0;
-  const bool has_deformation = has_vertex_cache || has_shape || has_skin;
+  const bool has_deformation = has_shape || has_skin;
 
   FbxVector4* vertex_array = NULL;
 
@@ -114,10 +113,6 @@ void Parser::bake_mesh_deformations(FbxMesh* mesh, VBOMesh * mesh_cache, FbxTime
   }
 
   if(has_deformation) {
-    // Active vertex cache deformer will overwrite any other deformer
-    if(has_vertex_cache) {
-      read_vertex_cache_data(mesh, current_time, vertex_array);
-    } else {
       if(has_shape) {
         // Deform the vertex array with the shapes.
         compute_shape_deformation(mesh, current_time, animation_layer, vertex_array);
@@ -140,42 +135,8 @@ void Parser::bake_mesh_deformations(FbxMesh* mesh, VBOMesh * mesh_cache, FbxTime
     if(mesh_cache) {
       mesh_cache->update_vertex_position(mesh, vertex_array);
     }
-  }
 
   delete [] vertex_array;
-}
-
-void Parser::read_vertex_cache_data(FbxMesh* mesh, FbxTime& time, FbxVector4* vertex_array)
-{
-  FbxVertexCacheDeformer* deformer     = static_cast<FbxVertexCacheDeformer*>(mesh->GetDeformer(0, FbxDeformer::eVertexCache));
-  FbxCache*               cache        = deformer->GetCache();
-  int                     channel_index = -1;
-  unsigned int            vertex_count  = (unsigned int)mesh->GetControlPointsCount();
-  bool                    read_success  = false;
-  double*                 read_buffer   = new double[3*vertex_count];
-
-  if(cache->GetCacheFileFormat() == FbxCache::eMayaCache) {
-    if((channel_index = cache->GetChannelIndex(deformer->GetCacheChannel())) > -1) {
-      read_success = cache->Read(channel_index, time, read_buffer, vertex_count);
-    }
-  } else { // eMaxPointCacheV2
-    read_success = cache->Read((unsigned int)time.GetFrameCount(), read_buffer, vertex_count);
-  }
-
-  if(read_success) {
-    unsigned int read_buffer_index = 0;
-
-    while(read_buffer_index < 3*vertex_count) {
-      vertex_array[read_buffer_index/3].mData[0] = read_buffer[read_buffer_index];
-      read_buffer_index++;
-      vertex_array[read_buffer_index/3].mData[1] = read_buffer[read_buffer_index];
-      read_buffer_index++;
-      vertex_array[read_buffer_index/3].mData[2] = read_buffer[read_buffer_index];
-      read_buffer_index++;
-    }
-  }
-
-  delete [] read_buffer;
 }
 
 Parser::~Parser()
